@@ -9,6 +9,7 @@ import { Github, Instagram, Linkedin, Mail } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
+import TerminalTyping from "@/components/terminal-typing"
 
 export default function Home() {
   const [language, setLanguage] = useState<Language>("pt")
@@ -54,17 +55,17 @@ export default function Home() {
         <div className="container flex px-6 md:px-12 lg:px-24 h-16 items-center">
           <div className="mr-4 flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
-              <span className="font-bold">Lucas Alexander</span>
+              <TerminalTyping fontSize='lg' />
             </Link>
           </div>
           <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
             <Link href="#about" className="text-sm font-medium">
               {dictionary.nav.about}
             </Link>
-            {/* <Link href="#skills" className="text-sm font-medium">
+            <Link href="#skills" className="text-sm font-medium">
               {dictionary.nav.skills}
             </Link>
-            <Link href="#projects" className="text-sm font-medium">
+            {/* <Link href="#projects" className="text-sm font-medium">
               {dictionary.nav.projects}
             </Link>
             <Link href="#contact" className="text-sm font-medium">
