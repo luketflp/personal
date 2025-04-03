@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const TerminalTyping = ({ 
-  text = "Lucas Soares", 
+  text = "Lucas Alexander", 
   typingSpeed = 150,
   erasingSpeed = 75,
   pauseBeforeErasing = 2000,
