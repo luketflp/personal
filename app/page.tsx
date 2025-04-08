@@ -126,9 +126,9 @@ export default function Home() {
           </div>
         </section>
 
-        <section>
+        {/* <section>
           <MapTimeline/>
-        </section>
+        </section> */}
 
         {/* <section id="skills" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-6 md:px-12 lg:px-24">
