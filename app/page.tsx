@@ -10,6 +10,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import TerminalTyping from "@/components/terminal-typing"
+import MapTimeline from "@/components/map-timeline"
+import Header from "./header"
 
 export default function Home() {
   const [language, setLanguage] = useState<Language>("pt")
@@ -51,33 +53,12 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex px-6 md:px-12 lg:px-24 h-16 items-center">
-          <div className="mr-4 flex">
-            <Link href="/" className="mr-6 flex items-center space-x-2">
-              <TerminalTyping fontSize='lg' />
-            </Link>
-          </div>
-          <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
-            <Link href="#about" className="text-sm font-medium">
-              {dictionary.nav.about}
-            </Link>
-            <Link href="#skills" className="text-sm font-medium">
-              {dictionary.nav.skills}
-            </Link>
-            {/* <Link href="#projects" className="text-sm font-medium">
-              {dictionary.nav.projects}
-            </Link>
-            <Link href="#contact" className="text-sm font-medium">
-              {dictionary.nav.contact}
-            </Link> */}
-            <div className="flex items-center gap-1">
-              <ThemeToggle dictionary={dictionary} />
-              <LanguageSwitcher currentLanguage={language} onLanguageChange={handleLanguageChange} />
-            </div>
-          </nav>
-        </div>
-      </header>
+      <Header
+        dictionary={dictionaries[language]} 
+        language={language}
+        handleLanguageChange={handleLanguageChange}
+      />
+
       <main className="flex-1">
         <section id="hero" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-6 md:px-12 lg:px-24">
@@ -143,6 +124,10 @@ export default function Home() {
               </p>
             </div>
           </div>
+        </section>
+
+        <section>
+          <MapTimeline/>
         </section>
 
         {/* <section id="skills" className="w-full py-12 md:py-24 lg:py-32">
