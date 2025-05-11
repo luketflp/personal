@@ -101,7 +101,7 @@ export default function Home() {
               </div>
               <div className="flex items-center justify-center">
                 <Image
-                  src="/lucas.jpg"
+                  src="/lucas.webp"
                   alt="Lucas"
                   width={400}
                   height={400}
