@@ -74,7 +74,7 @@ const TerminalTyping = ({
   const shadowClass = showShadow ? 'shadow-sm' : '';
   
   return (
-    <span className={`text-${textColor} font-bold text-${fontSize} flex items-center whitespace-nowrap`} style={{ color: textColor.startsWith('#') ? textColor : undefined }}>
+    <span className={`text-${textColor} font-bold text-${fontSize} flex items-center whitespace-nowrap dark:text-white`} style={{ color: textColor.startsWith('#') ? textColor : undefined }}>
       {prefix}{displayText}
       <span className={`${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-100 inline-block align-middle`}>
         {cursorChar}
