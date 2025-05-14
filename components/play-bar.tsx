@@ -39,10 +39,10 @@ const tracks: Track[] = [
 
 const Bar = ({ delay }: { delay: number }) => (
   <motion.span
-    className="w-[3px] bg-green-500 rounded-sm"
-    style={{ height: "8px" }}
+    className="w-[2px] bg-green-500 rounded-sm"
+    style={{ height: "6px" }}
     animate={{
-      scaleY: [1, 2, 1],
+      scaleY: [1, 1.5, 1],
     }}
     transition={{
       repeat: Infinity,
@@ -121,7 +121,6 @@ export default function PlayBar() {
     const deltaX = e.changedTouches[0].clientX - swipeStartX;
     const swipeThreshold = 50;
     if (Math.abs(deltaX) > swipeThreshold) {
-      // Visual feedback
       const playbar = playbarRef.current;
       if (playbar) {
         playbar.style.transform = `translateX(${deltaX > 0 ? 10 : -10}px)`;
@@ -148,19 +147,18 @@ export default function PlayBar() {
             ref={playbarRef}
             className="fixed bottom-4 flex z-[9999] pointer-events-auto touch-pan-y"
             style={{ left: '50%', translateX: '-50%' }}
-            drag={!isVolumeHovered} // Only allow dragging when not hovering volume
+            drag={!isVolumeHovered}
             dragConstraints={{ left: dragConstraints.left, right: dragConstraints.right }}
             dragControls={dragControls}
             dragElastic={0.1}
             dragMomentum={false}
-            dragListener={!isVolumeHovered} // Only listen for drag when not on volume
+            dragListener={!isVolumeHovered}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             whileTap={{ cursor: isVolumeHovered ? 'default' : 'grabbing' }}
             onPointerDown={(e) => {
-              // Check if the target is the volume control or its children
               const isVolumeControl = volumeRef.current?.contains(e.target as Node);
               if (!isVolumeControl && !(e.target instanceof HTMLButtonElement) && !(e.target instanceof HTMLInputElement)) {
                 e.stopPropagation();
@@ -172,16 +170,16 @@ export default function PlayBar() {
             onDragStart={() => setIsDragging(true)}
             onDragEnd={() => setIsDragging(false)}
           >
-            <div className="absolute -top-6 z-50 left-0 rounded-b-none rounded-t-xl bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-70 backdrop-blur-md text-black dark:text-white text-sm font-semibold px-4 py-1">
+            <div className="absolute -top-5 z-50 left-0 rounded-b-none rounded-t-lg bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-70 backdrop-blur-md text-black dark:text-white text-xs font-semibold px-3 py-1">
               Minha playlist 😛
             </div>
-            <div className="relative w-[360px] sm:w-[480px] bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-70 backdrop-blur-md rounded-2xl text-black dark:text-white px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-center justify-between shadow-2xl">
+            <div className="relative w-[300px] sm:w-[480px] bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-70 backdrop-blur-md rounded-xl sm:rounded-2xl text-black dark:text-white px-3 sm:px-6 py-2 sm:py-3 flex flex-col sm:flex-row items-center justify-between shadow-lg sm:shadow-2xl">
               <button
                 onClick={() => setIsVisible(false)}
-                className="absolute -top-2 -right-2 bg-gray-200 dark:bg-gray-700 rounded-full p-2 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                className="absolute -top-1.5 -right-1.5 bg-gray-200 dark:bg-gray-700 rounded-full p-1 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                 aria-label="Close player"
               >
-                <X size={16} />
+                <X size={12} className="sm:w-4 sm:h-4" />
               </button>
 
               <div className="hidden">
@@ -195,16 +193,15 @@ export default function PlayBar() {
                 />
               </div>
 
-              {/* Track Info - Fixed width container */}
-              <div className="w-full sm:w-[180px] flex items-center gap-3 mb-2 sm:mb-0 overflow-hidden">
+              <div className="w-full sm:w-[180px] flex items-center gap-2 mb-1 sm:mb-0 overflow-hidden">
                 <div className="relative flex-shrink-0">
                   <img
                     src={thumbnail}
                     alt="Album cover"
-                    className="w-12 h-12 rounded-lg object-cover shadow-md"
+                    className="w-8 h-8 sm:w-12 sm:h-12 rounded sm:rounded-lg object-cover shadow-sm sm:shadow-md"
                   />
                   {/* {isPlaying && (
-                    <div className="absolute -right-4 bottom-0 flex items-end gap-[2px] h-5">
+                    <div className="absolute -right-3 bottom-0 flex items-end gap-[1px] h-4 sm:h-5">
                       <Bar delay={0} />
                       <Bar delay={0.2} />
                       <Bar delay={0.4} />
@@ -212,41 +209,48 @@ export default function PlayBar() {
                   )} */}
                 </div>
                 <div className="overflow-hidden flex-1 min-w-0">
-                  <h4 className="text-sm font-semibold text-ellipsis whitespace-nowrap overflow-hidden">
+                  <h4 className="text-xs sm:text-sm font-semibold text-ellipsis whitespace-nowrap overflow-hidden">
                     {title}
                   </h4>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 truncate">{artist}</p>
+                  <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 truncate">
+                    {artist}
+                  </p>
                 </div>
               </div>
 
-              {/* Desktop Controls - Fixed width */}
               <div className="hidden sm:flex flex-col items-center gap-2 w-[200px]">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <button 
                     onClick={(e) => { e.stopPropagation(); prevTrack(); }} 
-                    className="p-3 hover:scale-105 active:scale-95 transition-transform"
+                    className="p-2 sm:p-3 hover:scale-105 active:scale-95 transition-transform"
                     aria-label="Previous track"
                   >
-                    <SkipBack size={20} />
+                    <SkipBack size={16} className="sm:w-5 sm:h-5" />
                   </button>
                   <button 
                     onClick={(e) => { e.stopPropagation(); setIsPlaying(!isPlaying); }} 
-                    className="p-3 bg-green-500 text-white rounded-full hover:scale-105 active:scale-95 transition-transform"
+                    className="p-2 sm:p-3 bg-green-500 text-white rounded-full hover:scale-105 active:scale-95 transition-transform"
                     aria-label={isPlaying ? "Pause" : "Play"}
                   >
-                    {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+                    {isPlaying ? (
+                      <Pause size={18} className="sm:w-6 sm:h-6" />
+                    ) : (
+                      <Play size={18} className="sm:w-6 sm:h-6" />
+                    )}
                   </button>
                   <button 
                     onClick={(e) => { e.stopPropagation(); nextTrack(); }} 
-                    className="p-3 hover:scale-105 active:scale-95 transition-transform"
+                    className="p-2 sm:p-3 hover:scale-105 active:scale-95 transition-transform"
                     aria-label="Next track"
                   >
-                    <SkipForward size={20} />
+                    <SkipForward size={16} className="sm:w-5 sm:h-5" />
                   </button>
                 </div>
-                <div className="w-full flex items-center gap-2">
-                  <span className="text-xs text-gray-600 dark:text-gray-400 min-w-[2.5rem]">{formatTime(progress.playedSeconds)}</span>
-                  <div className="flex-1 bg-gray-300 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
+                <div className="w-full flex items-center gap-1 sm:gap-2">
+                  <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 min-w-[2rem] sm:min-w-[2.5rem]">
+                    {formatTime(progress.playedSeconds)}
+                  </span>
+                  <div className="flex-1 bg-gray-300 dark:bg-gray-700 h-1 sm:h-1.5 rounded-full overflow-hidden">
                     <motion.div 
                       className="bg-green-500 h-full rounded-full" 
                       initial={{ width: 0 }}
@@ -254,37 +258,41 @@ export default function PlayBar() {
                       transition={{ duration: 0.2 }}
                     />
                   </div>
-                  <span className="text-xs text-gray-600 dark:text-gray-400 min-w-[2.5rem]">{formatTime(duration)}</span>
+                  <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 min-w-[2rem] sm:min-w-[2.5rem]">
+                    {formatTime(duration)}
+                  </span>
                 </div>
               </div>
 
-              {/* Mobile Controls - Full width but fixed height */}
-              <div className="w-full sm:hidden flex items-center justify-between mt-2">
+              <div className="w-full sm:hidden flex items-center justify-between mt-1">
                 <button 
                   onClick={(e) => { e.stopPropagation(); prevTrack(); }} 
-                  className="p-3 hover:scale-105 active:scale-95 transition-transform"
+                  className="p-2 hover:scale-105 active:scale-95 transition-transform"
                   aria-label="Previous track"
                 >
-                  <SkipBack size={20} />
+                  <SkipBack size={16} />
                 </button>
                 <button 
                   onClick={(e) => { e.stopPropagation(); setIsPlaying(!isPlaying); }} 
-                  className="p-3 bg-green-500 text-white rounded-full hover:scale-105 active:scale-95 transition-transform"
+                  className="p-2 bg-green-500 text-white rounded-full hover:scale-105 active:scale-95 transition-transform"
                   aria-label={isPlaying ? "Pause" : "Play"}
                 >
-                  {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+                  {isPlaying ? <Pause size={18} /> : <Play size={18} />}
                 </button>
                 <button 
                   onClick={(e) => { e.stopPropagation(); nextTrack(); }} 
-                  className="p-3 hover:scale-105 active:scale-95 transition-transform"
+                  className="p-2 hover:scale-105 active:scale-95 transition-transform"
                   aria-label="Next track"
                 >
-                  <SkipForward size={20} />
+                  <SkipForward size={16} />
                 </button>
               </div>
-              <div className="w-full sm:hidden mt-2 flex items-center gap-2">
-                <span className="text-xs text-gray-600 dark:text-gray-400 min-w-[2.5rem]">{formatTime(progress.playedSeconds)}</span>
-                <div className="flex-1 bg-gray-300 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
+              
+              <div className="w-full sm:hidden mt-1 flex items-center gap-1">
+                <span className="text-[10px] text-gray-600 dark:text-gray-400 min-w-[2rem]">
+                  {formatTime(progress.playedSeconds)}
+                </span>
+                <div className="flex-1 bg-gray-300 dark:bg-gray-700 h-1 rounded-full overflow-hidden">
                   <motion.div 
                     className="bg-green-500 h-full rounded-full" 
                     initial={{ width: 0 }}
@@ -292,17 +300,18 @@ export default function PlayBar() {
                     transition={{ duration: 0.2 }}
                   />
                 </div>
-                <span className="text-xs text-gray-600 dark:text-gray-400 min-w-[2.5rem]">{formatTime(duration)}</span>
+                <span className="text-[10px] text-gray-600 dark:text-gray-400 min-w-[2rem]">
+                  {formatTime(duration)}
+                </span>
               </div>
 
-              {/* Volume Control - Desktop only */}
               <div 
                 ref={volumeRef}
-                className="hidden sm:flex items-center gap-2 w-[80px]"
+                className="hidden sm:flex items-center gap-2 w-[70px] sm:w-[80px]"
                 onMouseEnter={() => setIsVolumeHovered(true)}
                 onMouseLeave={() => setIsVolumeHovered(false)}
               >
-                <Volume2 size={20} />
+                <Volume2 size={16} className="sm:w-5 sm:h-5" />
                 <input
                   type="range"
                   min="0"
@@ -310,7 +319,7 @@ export default function PlayBar() {
                   step="0.01"
                   value={volume}
                   onChange={(e) => setVolume(parseFloat(e.target.value))}
-                  className="w-full accent-green-500"
+                  className="w-full accent-green-500 h-1 sm:h-1.5"
                   aria-label="Volume control"
                   onClick={(e) => e.stopPropagation()}
                 />
