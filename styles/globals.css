@@ -92,3 +92,12 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.touch-target {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.touch-target:active {
+  transform: scale(0.95);
+}

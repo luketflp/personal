@@ -27,7 +27,6 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    // Check if there's a saved language preference in localStorage
     const savedLanguage = localStorage.getItem("language") as Language
     if (savedLanguage && ["pt", "en", "es"].includes(savedLanguage)) {
       setLanguage(savedLanguage)

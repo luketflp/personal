@@ -1,62 +1,14 @@
-import { useState, useRef, useCallback, useLayoutEffect } from "react";
+import { useState, useRef, useCallback, useLayoutEffect, useEffect } from "react";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import ReactPlayer from "react-player";
-import { Play, Pause, SkipBack, SkipForward, Volume2, X } from "lucide-react";
-
-interface Track {
-  title: string;
-  artist: string;
-  url: string;
-  thumbnail: string;
-}
-
-const tracks: Track[] = [
-  {
-    title: "Tudo no Olhar/ Sem me Controlar/ Perdoa Amor",
-    artist: "Marcos & Belutti",
-    url: "https://www.youtube.com/watch?v=KTcZq6HbGpg",
-    thumbnail: "https://i.ytimg.com/vi/KTcZq6HbGpg/hq720.jpg",
-  },
-  {
-    title: "Um Sonhador / Não Aprendi a Dizer Adeus / Rumo a Goiânia",
-    artist: "Leonardo",
-    url: "https://www.youtube.com/watch?v=apT5ix3D-G0",
-    thumbnail: "https://i.ytimg.com/vi/apT5ix3D-G0/hq720.jpg",
-  },
-  {
-    title: "Aonde Quer Que Eu Vá",
-    artist: "Os Paralamas do Sucesso",
-    url: "https://www.youtube.com/watch?v=dIuK5nOZb2o",
-    thumbnail: "https://i.ytimg.com/vi/dIuK5nOZb2o/hq720.jpg",
-  },
-  {
-    title: "Sem Radar",
-    artist: "Marcos & Belutti",
-    url: "https://www.youtube.com/watch?v=8bgiaNT1Jnw",
-    thumbnail: "https://i.ytimg.com/vi/8bgiaNT1Jnw/hq720.jpg",
-  },
-];
-
-const Bar = ({ delay }: { delay: number }) => (
-  <motion.span
-    className="w-[2px] bg-green-500 rounded-sm"
-    style={{ height: "6px" }}
-    animate={{
-      scaleY: [1, 1.5, 1],
-    }}
-    transition={{
-      repeat: Infinity,
-      duration: 0.6,
-      delay,
-      ease: "easeInOut",
-    }}
-  />
-);
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X } from "lucide-react";
+import { tracks } from "@/utils/constants/playlist";
 
 export default function PlayBar() {
-  const [currentTrack, setCurrentTrack] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.2);
+  const [currentTrack, setCurrentTrack] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [volume, setVolume] = useState(0);
+  const [isMuted, setIsMuted] = useState(true);
   const [progress, setProgress] = useState({ played: 0, playedSeconds: 0, loadedSeconds: 0 });
   const [duration, setDuration] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
@@ -64,27 +16,12 @@ export default function PlayBar() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
   const [isVolumeHovered, setIsVolumeHovered] = useState(false);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
 
   const playerRef = useRef<ReactPlayer | null>(null);
   const dragControls = useDragControls();
   const playbarRef = useRef<HTMLDivElement>(null);
   const volumeRef = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    const updateConstraints = () => {
-      if (playbarRef.current) {
-        const playbarWidth = playbarRef.current.offsetWidth;
-        const viewportWidth = window.innerWidth;
-        const left = -viewportWidth / 2 + playbarWidth / 2;
-        const right = viewportWidth / 2 - playbarWidth / 2;
-        setDragConstraints({ left, right });
-      }
-    };
-
-    updateConstraints();
-    window.addEventListener('resize', updateConstraints);
-    return () => window.removeEventListener('resize', updateConstraints);
-  }, []);
 
   const nextTrack = useCallback(() => {
     setCurrentTrack((prev) => (prev + 1) % tracks.length);
@@ -103,6 +40,23 @@ export default function PlayBar() {
   const handleDuration = useCallback((dur: number) => {
     setDuration(dur);
   }, []);
+
+  const handlePlay = useCallback(() => {
+    setAutoplayBlocked(false);
+  }, []);
+
+  const handleError = useCallback((error: any) => {
+    console.error('Player error:', error);
+    if (error?.type === 'not-allowed') {
+      setAutoplayBlocked(true);
+    }
+  }, []);
+
+  const toggleMute = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIsMuted(muted => !muted);
+    setVolume(volume === 0 ? 0.2 : volume);
+  }, [isMuted, volume]);
 
   const formatTime = useCallback((seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -137,7 +91,30 @@ export default function PlayBar() {
     }
   };
 
-  const { title, artist, url, thumbnail } = tracks[currentTrack];
+  const { title, artist, url, thumbnail } = tracks[currentTrack || 0];
+
+  useLayoutEffect(() => {
+    const updateConstraints = () => {
+      if (playbarRef.current) {
+        const playbarWidth = playbarRef.current.offsetWidth;
+        const viewportWidth = window.innerWidth;
+        const left = -viewportWidth / 2 + playbarWidth / 2;
+        const right = viewportWidth / 2 - playbarWidth / 2;
+        setDragConstraints({ left, right });
+      }
+    };
+
+    updateConstraints();
+    window.addEventListener('resize', updateConstraints);
+    return () => window.removeEventListener('resize', updateConstraints);
+  }, []);
+
+  useEffect(() => {
+  if (currentTrack === null) {
+    const randomIndex = Math.floor(Math.random() * tracks.length);
+    setCurrentTrack(randomIndex);
+  }
+}, [currentTrack]);
 
   return (
     <AnimatePresence>
@@ -152,7 +129,7 @@ export default function PlayBar() {
             dragControls={dragControls}
             dragElastic={0.1}
             dragMomentum={false}
-            dragListener={!isVolumeHovered}
+            dragListener={!isVolumeHovered }
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
@@ -170,10 +147,10 @@ export default function PlayBar() {
             onDragStart={() => setIsDragging(true)}
             onDragEnd={() => setIsDragging(false)}
           >
-            <div className="absolute -top-5 z-50 left-0 rounded-b-none rounded-t-lg bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-70 backdrop-blur-md text-black dark:text-white text-xs font-semibold px-3 py-1">
+            <div className="absolute -top-6 pb-7 z-1 z-50 left-0 rounded-b-none rounded-t-lg bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-70 backdrop-blur-md text-black dark:text-white text-xs font-semibold px-3 py-1.5 shadow-none">
               Minha playlist 😛
             </div>
-            <div className="relative w-[300px] sm:w-[480px] bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-70 backdrop-blur-md rounded-xl sm:rounded-2xl text-black dark:text-white px-3 sm:px-6 py-2 sm:py-3 flex flex-col sm:flex-row items-center justify-between shadow-lg sm:shadow-2xl">
+            <div className="relative w-[300px] sm:w-[480px] bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-70 backdrop-blur-md rounded-xl sm:rounded-2xl text-black dark:text-white px-3 z-50 sm:px-6 py-2 sm:py-3 flex flex-col sm:flex-row items-center justify-between shadow-lg sm:shadow-2xl">
               <button
                 onClick={() => setIsVisible(false)}
                 className="absolute -top-1.5 -right-1.5 bg-gray-200 dark:bg-gray-700 rounded-full p-1 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
@@ -188,10 +165,26 @@ export default function PlayBar() {
                   url={url}
                   playing={isPlaying}
                   volume={volume}
+                  muted={isMuted}
+                  playsinline
+                  onPlay={handlePlay}
+                  onError={handleError}
                   onProgress={handleProgress}
                   onDuration={handleDuration}
                 />
               </div>
+
+              {autoplayBlocked && (
+                <div className="absolute inset-0 bg-black bg-opacity-70 rounded-xl flex items-center justify-center p-4">
+                  <button 
+                    onClick={() => setIsPlaying(true)}
+                    className="bg-green-500 text-white px-4 py-2 rounded-full flex items-center gap-2"
+                  >
+                    <Play size={16} />
+                    <span>Tap to Play</span>
+                  </button>
+                </div>
+              )}
 
               <div className="w-full sm:w-[180px] flex items-center gap-2 mb-1 sm:mb-0 overflow-hidden">
                 <div className="relative flex-shrink-0">
@@ -200,13 +193,6 @@ export default function PlayBar() {
                     alt="Album cover"
                     className="w-8 h-8 sm:w-12 sm:h-12 rounded sm:rounded-lg object-cover shadow-sm sm:shadow-md"
                   />
-                  {/* {isPlaying && (
-                    <div className="absolute -right-3 bottom-0 flex items-end gap-[1px] h-4 sm:h-5">
-                      <Bar delay={0} />
-                      <Bar delay={0.2} />
-                      <Bar delay={0.4} />
-                    </div>
-                  )} */}
                 </div>
                 <div className="overflow-hidden flex-1 min-w-0">
                   <h4 className="text-xs sm:text-sm font-semibold text-ellipsis whitespace-nowrap overflow-hidden">
@@ -280,6 +266,13 @@ export default function PlayBar() {
                   {isPlaying ? <Pause size={18} /> : <Play size={18} />}
                 </button>
                 <button 
+                  onClick={toggleMute}
+                  className="p-2 hover:scale-105 active:scale-95 transition-transform"
+                  aria-label={isMuted ? "Unmute" : "Mute"}
+                >
+                  {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                </button>
+                <button 
                   onClick={(e) => { e.stopPropagation(); nextTrack(); }} 
                   className="p-2 hover:scale-105 active:scale-95 transition-transform"
                   aria-label="Next track"
@@ -311,14 +304,20 @@ export default function PlayBar() {
                 onMouseEnter={() => setIsVolumeHovered(true)}
                 onMouseLeave={() => setIsVolumeHovered(false)}
               >
-                <Volume2 size={16} className="sm:w-5 sm:h-5" />
+                <button onClick={toggleMute} className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                  {isMuted ? <VolumeX size={16} className="sm:w-5 sm:h-5" /> : <Volume2 size={16} className="sm:w-5 sm:h-5" />}
+                </button>
                 <input
                   type="range"
                   min="0"
                   max="1"
                   step="0.01"
                   value={volume}
-                  onChange={(e) => setVolume(parseFloat(e.target.value))}
+                  onChange={(e) => {
+                    const newVolume = parseFloat(e.target.value);
+                    setVolume(newVolume);
+                    setIsMuted(newVolume === 0);
+                  }}
                   className="w-full accent-green-500 h-1 sm:h-1.5"
                   aria-label="Volume control"
                   onClick={(e) => e.stopPropagation()}

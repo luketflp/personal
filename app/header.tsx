@@ -4,6 +4,7 @@ import { Menu, X } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import TerminalTyping from '@/components/terminal-typing';
 import LanguageSwitcher from '@/components/language-switcher';
+import type { Language } from '@/lib/i18n/dictionaries';
 
 interface HeaderProps {
   dictionary: {
@@ -12,8 +13,8 @@ interface HeaderProps {
       skills: string;
     };
   };
-  language: string;
-  handleLanguageChange: (language: string) => void;
+  language: Language;
+  handleLanguageChange: (language: Language) => void;
 }
 
 export default function Header({ dictionary, language, handleLanguageChange }: HeaderProps) {
