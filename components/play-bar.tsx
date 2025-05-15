@@ -1,11 +1,12 @@
-import { useState, useRef, useCallback, useLayoutEffect, useEffect } from "react";
+import { useState, useRef, useCallback, useLayoutEffect, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import ReactPlayer from "react-player";
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X } from "lucide-react";
 import { tracks } from "@/utils/constants/playlist";
+import { Language } from "@/lib/i18n/dictionaries";
 
-export default function PlayBar() {
-  const [currentTrack, setCurrentTrack] = useState<number | null>(null);
+export default function PlayBar({ language} : {language: Language}) {
+  const [currentTrack, setCurrentTrack] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [volume, setVolume] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
@@ -23,13 +24,15 @@ export default function PlayBar() {
   const playbarRef = useRef<HTMLDivElement>(null);
   const volumeRef = useRef<HTMLDivElement>(null);
 
+  const currTracks = useMemo(() => tracks[language || 'pt'], [tracks, language])
+
   const nextTrack = useCallback(() => {
-    setCurrentTrack((prev) => (prev + 1) % tracks.length);
+    setCurrentTrack((prev) => (prev + 1) % currTracks.length);
     setIsPlaying(true);
   }, []);
 
   const prevTrack = useCallback(() => {
-    setCurrentTrack((prev) => (prev === 0 ? tracks.length - 1 : prev - 1));
+    setCurrentTrack((prev) => (prev === 0 ? currTracks.length - 1 : prev - 1));
     setIsPlaying(true);
   }, []);
 
@@ -91,7 +94,7 @@ export default function PlayBar() {
     }
   };
 
-  const { title, artist, url, thumbnail } = tracks[currentTrack || 0];
+  const { title = '', artist = '', url = '', thumbnail = '' } = useMemo(() => currTracks[currentTrack || 0], [currTracks, currentTrack]);
 
   useLayoutEffect(() => {
     const updateConstraints = () => {
@@ -110,11 +113,10 @@ export default function PlayBar() {
   }, []);
 
   useEffect(() => {
-  if (currentTrack === null) {
-    const randomIndex = Math.floor(Math.random() * tracks.length);
-    setCurrentTrack(randomIndex);
-  }
-}, [currentTrack]);
+    if (currentTrack === null && currTracks.length > 0) {
+      setCurrentTrack(0); // começa sempre do primeiro
+    }
+  }, [currentTrack, currTracks]);
 
   return (
     <AnimatePresence>
@@ -171,6 +173,7 @@ export default function PlayBar() {
                   onError={handleError}
                   onProgress={handleProgress}
                   onDuration={handleDuration}
+                  onEnded={nextTrack}
                 />
               </div>
 

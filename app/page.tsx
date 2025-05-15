@@ -125,7 +125,7 @@ export default function Home() {
           <MapTimeline/>
         </section> */}
 
-        <PlayBar />
+        <PlayBar language={language} />
   
       </main>
       <footer className="w-full border-t py-6">
