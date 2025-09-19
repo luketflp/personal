@@ -18,6 +18,7 @@ export default function PlayBar({ language} : {language: Language}) {
   const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
   const [isVolumeHovered, setIsVolumeHovered] = useState(false);
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
+  const [isVolumeTooltipVisible, setIsVolumeTooltipVisible] = useState(false);
 
   const playerRef = useRef<ReactPlayer | null>(null);
   const dragControls = useDragControls();
@@ -49,7 +50,8 @@ export default function PlayBar({ language} : {language: Language}) {
   }, []);
 
   const handleError = useCallback((error: any) => {
-    console.error('Player error:', error);
+    console.error(error);
+    console.log({ error })
     if (error?.type === 'not-allowed') {
       setAutoplayBlocked(true);
     }
@@ -94,7 +96,17 @@ export default function PlayBar({ language} : {language: Language}) {
     }
   };
 
-  const { title = '', artist = '', url = '', thumbnail = '' } = useMemo(() => currTracks[currentTrack || 0], [currTracks, currentTrack]);
+  const toggleVolumeTooltip = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsVolumeTooltipVisible((prev) => !prev);
+  }, []);
+
+  const { 
+    title = '',
+    artist = '',
+    url = '',
+    thumbnail = ''
+  } = useMemo(() => currTracks[currentTrack || 0], [currTracks, currentTrack]);
 
   useLayoutEffect(() => {
     const updateConstraints = () => {
@@ -118,13 +130,27 @@ export default function PlayBar({ language} : {language: Language}) {
     }
   }, [currentTrack, currTracks]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        volumeRef.current &&
+        !volumeRef.current.contains(event.target as Node)
+      ) {
+        setIsVolumeTooltipVisible(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <AnimatePresence>
       {isVisible && (
-        <div className="fixed inset-0 overflow-hidden pointer-events-none z-[9999]">
+        <div className="fixed inset-0 overflow-hidden pointer-events-none z-[100]">
           <motion.div
             ref={playbarRef}
-            className="fixed bottom-4 flex z-[9999] pointer-events-auto touch-pan-y"
+            className="fixed bottom-4 flex z-[100] pointer-events-auto touch-pan-y"
             style={{ left: '50%', translateX: '-50%' }}
             drag={!isVolumeHovered}
             dragConstraints={{ left: dragConstraints.left, right: dragConstraints.right }}

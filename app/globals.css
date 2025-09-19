@@ -75,3 +75,7 @@
   }
 }
 
+
+* {
+  @apply cursor-none; /* or cursor-default */
+}

@@ -3,11 +3,11 @@
 import { Button } from "@/components/ui/button"
 import { type Dictionary, type Language, dictionaries } from "@/lib/i18n/dictionaries"
 import { Github, Instagram, Linkedin } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import Header from "./header"
 import PlayBar from "@/components/play-bar"
+import { PixelImage } from "@/components/ui/shadcn-io/pixel-image"
 
 export default function Home() {
   const [language, setLanguage] = useState<Language>("pt")
@@ -74,19 +74,19 @@ export default function Home() {
                   </Button>
                 </div>
                 <div className="flex gap-4">
-                  <Link href="https://github.com" target="_blank" rel="noopener noreferrer">
+                  <Link href="https://github.com/luketflp" target="_blank" rel="noopener noreferrer">
                     <Button onClick={goToGithub} variant="ghost" size="icon">
                       <Github className="h-5 w-5" />
                       <span className="sr-only">GitHub</span>
                     </Button>
                   </Link>
-                  <Link href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+                  <Link href="https://www.linkedin.com/in/luca-soares/" target="_blank" rel="noopener noreferrer">
                     <Button onClick={goToLinkedin} variant="ghost" size="icon">
                       <Linkedin className="h-5 w-5" />
                       <span className="sr-only">LinkedIn</span>
                     </Button>
                   </Link>
-                  <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                  <Link href="https://www.instagram.com/olucasalexander/" target="_blank" rel="noopener noreferrer">
                     <Button onClick={goToInstagram} variant="ghost" size="icon">
                       <Instagram className="h-5 w-5" />
                       <span className="sr-only">Instagram</span>
@@ -95,13 +95,9 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex items-center justify-center">
-                <Image
+                <PixelImage
                   src="/lucas.webp"
-                  alt="Lucas"
-                  width={400}
-                  height={400}
-                  className="rounded-full object-cover"
-                  priority
+                  grid="8x8"
                 />
               </div>
             </div>
@@ -134,19 +130,19 @@ export default function Home() {
             © {new Date().getFullYear()} Lucas. {dictionary.footer.rights}
           </p>
           <div className="flex gap-4">
-            <Link href="https://github.com" target="_blank" rel="noopener noreferrer">
+            <Link href="https://github.com/luketflp" target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="icon">
                 <Github className="h-4 w-4" />
                 <span className="sr-only">GitHub</span>
               </Button>
             </Link>
-            <Link href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+            <Link href="https://www.linkedin.com/in/luca-soares/" target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="icon">
                 <Linkedin className="h-4 w-4" />
                 <span className="sr-only">LinkedIn</span>
               </Button>
             </Link>
-            <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+            <Link href="https://www.instagram.com/olucasalexander/" target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="icon">
                 <Instagram className="h-4 w-4" />
                 <span className="sr-only">Instagram</span>
