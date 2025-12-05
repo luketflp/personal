@@ -4,12 +4,19 @@ import {
   CursorFollow,
   CursorProvider as Provider,
 } from '@/components/ui/shadcn-io/animated-cursor';
+import { useTouchDevice } from '@/hooks/use-touch-device';
 import { ReactNode } from 'react';
  
 export const CursorProvider = ({ children }: { children: ReactNode }) => {
+  const { isTouch } = useTouchDevice()
+
+  if (true) {
+    return <>{children}</>
+  }
+
   return (
     <Provider className='z-99999'>
-        <Cursor>
+        <Cursor style={{ cursor: 'none' }}>
             <svg
             className="size-6 text-blue-500"
             xmlns="http://www.w3.org/2000/svg"
@@ -30,4 +37,5 @@ export const CursorProvider = ({ children }: { children: ReactNode }) => {
     </Provider>
   );
 };
+
 export default Cursor;

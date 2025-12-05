@@ -1,361 +1,373 @@
-import { useState, useRef, useCallback, useLayoutEffect, useEffect, useMemo } from "react";
-import { motion, AnimatePresence, useDragControls } from "framer-motion";
-import ReactPlayer from "react-player";
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X } from "lucide-react";
-import { tracks } from "@/utils/constants/playlist";
-import { Language } from "@/lib/i18n/dictionaries";
+'use client';
 
-export default function PlayBar({ language} : {language: Language}) {
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import ReactPlayer from 'react-player';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, Volume1, Maximize2 } from 'lucide-react';
+import { tracks as ALL_TRACKS } from '@/utils/constants/playlist';
+import type { Language } from '@/lib/i18n/dictionaries';
+
+type Progress = { played: number; playedSeconds: number; loadedSeconds: number };
+
+export default function PlayBar({ language }: { language: Language }) {
+  // Core state
   const [currentTrack, setCurrentTrack] = useState<number>(0);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [volume, setVolume] = useState(0);
-  const [isMuted, setIsMuted] = useState(true);
-  const [progress, setProgress] = useState({ played: 0, playedSeconds: 0, loadedSeconds: 0 });
-  const [duration, setDuration] = useState(0);
-  const [isVisible, setIsVisible] = useState(true);
-  const [swipeStartX, setSwipeStartX] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
-  const [isVolumeHovered, setIsVolumeHovered] = useState(false);
-  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
-  const [isVolumeTooltipVisible, setIsVolumeTooltipVisible] = useState(false);
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const [isMinimized, setIsMinimized] = useState<boolean>(false);
 
+  // Volume/mute (start muted @0 to satisfy autoplay policies)
+  const [volume, setVolume] = useState<number>(0);
+  const [isMuted, setIsMuted] = useState<boolean>(true);
+  const [prevVolume, setPrevVolume] = useState<number>(0.5);
+
+  // Timing
+  const [progress, setProgress] = useState<Progress>({ played: 0, playedSeconds: 0, loadedSeconds: 0 });
+  const [duration, setDuration] = useState<number>(0);
+  const [isSeeking, setIsSeeking] = useState<boolean>(false);
+
+  // UI/UX
+  const [isVisible, setIsVisible] = useState<boolean>(true);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+  const [autoplayBlocked, setAutoplayBlocked] = useState<boolean>(false);
+
+
+
+  // Transition state
+  const [fadeOpacity, setFadeOpacity] = useState<number>(1);
+  const isTransitioning = useRef<boolean>(false);
+
+  // Refs
   const playerRef = useRef<ReactPlayer | null>(null);
-  const dragControls = useDragControls();
-  const playbarRef = useRef<HTMLDivElement>(null);
-  const volumeRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const currTracks = useMemo(() => tracks[language || 'pt'], [tracks, language])
+  // Tracks for current language
+  const currTracks = useMemo(() => ALL_TRACKS[language] || ALL_TRACKS['pt'], [language]);
+
+  // Derive current track data
+  const { title = '', artist = '', url = '', thumbnail = '' } = useMemo(() => {
+    return currTracks[currentTrack] ?? {
+      title: '',
+      artist: '',
+      url: '',
+      thumbnail: '',
+    };
+  }, [currTracks, currentTrack]);
+
+  // Ensure currentTrack is valid
+  useEffect(() => {
+    if (currentTrack >= currTracks.length) {
+      setCurrentTrack(0);
+    }
+  }, [currTracks, currentTrack]);
+
+  // Handlers
+  const resetProgress = useCallback(() => {
+    setProgress({ played: 0, playedSeconds: 0, loadedSeconds: 0 });
+    setDuration(0);
+  }, []);
+
+  // Smooth transition helper
+  const performSmoothTransition = useCallback(async (nextIndexGetter: (prev: number) => number) => {
+    if (isTransitioning.current) return;
+    isTransitioning.current = true;
+
+    // Fade out
+    const steps = 10;
+    const duration = 500; // ms
+    const stepTime = duration / steps;
+
+    for (let i = steps; i >= 0; i--) {
+      setFadeOpacity(i / steps);
+      await new Promise(r => setTimeout(r, stepTime));
+    }
+
+    resetProgress();
+    setCurrentTrack(nextIndexGetter);
+    setIsPlaying(true);
+
+    // Fade in
+    for (let i = 0; i <= steps; i++) {
+      setFadeOpacity(i / steps);
+      await new Promise(r => setTimeout(r, stepTime));
+    }
+    
+    isTransitioning.current = false;
+  }, [resetProgress]);
 
   const nextTrack = useCallback(() => {
-    setCurrentTrack((prev) => (prev + 1) % currTracks.length);
-    setIsPlaying(true);
-  }, []);
+    performSmoothTransition((prev) => (prev + 1) % currTracks.length);
+  }, [currTracks.length, performSmoothTransition]);
 
   const prevTrack = useCallback(() => {
-    setCurrentTrack((prev) => (prev === 0 ? currTracks.length - 1 : prev - 1));
-    setIsPlaying(true);
+    performSmoothTransition((prev) => {
+      const len = Math.max(1, currTracks.length);
+      return prev === 0 ? len - 1 : prev - 1;
+    });
+  }, [currTracks.length, performSmoothTransition]);
+
+  const handlePlayPause = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setIsPlaying((p) => !p);
   }, []);
 
-  const handleProgress = useCallback((state: { played: number; playedSeconds: number; loadedSeconds: number }) => {
-    setProgress(state);
-  }, []);
-
-  const handleDuration = useCallback((dur: number) => {
-    setDuration(dur);
-  }, []);
-
-  const handlePlay = useCallback(() => {
-    setAutoplayBlocked(false);
-  }, []);
-
-  const handleError = useCallback((error: any) => {
-    console.error(error);
-    console.log({ error })
-    if (error?.type === 'not-allowed') {
-      setAutoplayBlocked(true);
+  const handleProgress = useCallback((state: Progress) => {
+    if (!isSeeking) {
+      setProgress(state);
     }
+  }, [isSeeking]);
+
+  const handleDuration = useCallback((dur: number) => setDuration(dur || 0), []);
+
+  const handleSeekStart = () => setIsSeeking(true);
+  
+  const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = parseFloat(e.target.value);
+    setProgress(prev => ({ ...prev, playedSeconds: newTime, played: newTime / duration }));
+  };
+
+  const handleSeekEnd = (e: React.MouseEvent<HTMLInputElement> | React.TouchEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement;
+    const newTime = parseFloat(target.value);
+    playerRef.current?.seekTo(newTime);
+    setIsSeeking(false);
+  };
+
+  // Autoplay policy
+  const handlePlay = useCallback(() => setAutoplayBlocked(false), []);
+  const handleError = useCallback((error: any) => {
+    if (error?.type === 'not-allowed') setAutoplayBlocked(true);
   }, []);
 
+  // Volume
   const toggleMute = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsMuted(muted => !muted);
-    setVolume(volume === 0 ? 0.2 : volume);
-  }, [isMuted, volume]);
+    e.stopPropagation();
+    if (isMuted) {
+      setIsMuted(false);
+      setVolume(prevVolume || 0.2);
+    } else {
+      setPrevVolume(volume);
+      setIsMuted(true);
+      setVolume(0);
+    }
+  }, [isMuted, volume, prevVolume]);
 
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVol = parseFloat(e.target.value);
+    setVolume(newVol);
+    setIsMuted(newVol === 0);
+    if (newVol > 0) setPrevVolume(newVol);
+  };
+
+  // Format time
   const formatTime = useCallback((seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
+    const safe = Number.isFinite(seconds) && seconds > 0 ? Math.floor(seconds) : 0;
+    const mins = Math.floor(safe / 60);
+    const secs = String(safe % 60).padStart(2, '0');
     return `${mins}:${secs}`;
   }, []);
 
-  const handleSwipeStart = (e: React.TouchEvent) => {
-    if (!isDragging) {
-      setSwipeStartX(e.touches[0].clientX);
-    }
-  };
-
-  const handleSwipeEnd = (e: React.TouchEvent) => {
-    if (isDragging) return;
-    const deltaX = e.changedTouches[0].clientX - swipeStartX;
-    const swipeThreshold = 50;
-    if (Math.abs(deltaX) > swipeThreshold) {
-      const playbar = playbarRef.current;
-      if (playbar) {
-        playbar.style.transform = `translateX(${deltaX > 0 ? 10 : -10}px)`;
-        setTimeout(() => {
-          playbar.style.transform = '';
-        }, 200);
-      }
-      
-      if (deltaX > 0) {
-        prevTrack();
-      } else {
-        nextTrack();
-      }
-    }
-  };
-
-  const toggleVolumeTooltip = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsVolumeTooltipVisible((prev) => !prev);
-  }, []);
-
-  const { 
-    title = '',
-    artist = '',
-    url = '',
-    thumbnail = ''
-  } = useMemo(() => currTracks[currentTrack || 0], [currTracks, currentTrack]);
-
-  useLayoutEffect(() => {
-    const updateConstraints = () => {
-      if (playbarRef.current) {
-        const playbarWidth = playbarRef.current.offsetWidth;
-        const viewportWidth = window.innerWidth;
-        const left = -viewportWidth / 2 + playbarWidth / 2;
-        const right = viewportWidth / 2 - playbarWidth / 2;
-        setDragConstraints({ left, right });
-      }
-    };
-
-    updateConstraints();
-    window.addEventListener('resize', updateConstraints);
-    return () => window.removeEventListener('resize', updateConstraints);
-  }, []);
-
-  useEffect(() => {
-    if (currentTrack === null && currTracks.length > 0) {
-      setCurrentTrack(0); // começa sempre do primeiro
-    }
-  }, [currentTrack, currTracks]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        volumeRef.current &&
-        !volumeRef.current.contains(event.target as Node)
-      ) {
-        setIsVolumeTooltipVisible(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <div className="fixed inset-0 overflow-hidden pointer-events-none z-[100]">
-          <motion.div
-            ref={playbarRef}
-            className="fixed bottom-4 flex z-[100] pointer-events-auto touch-pan-y"
-            style={{ left: '50%', translateX: '-50%' }}
-            drag={!isVolumeHovered}
-            dragConstraints={{ left: dragConstraints.left, right: dragConstraints.right }}
-            dragControls={dragControls}
-            dragElastic={0.1}
-            dragMomentum={false}
-            dragListener={!isVolumeHovered }
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            whileTap={{ cursor: isVolumeHovered ? 'default' : 'grabbing' }}
-            onPointerDown={(e) => {
-              const isVolumeControl = volumeRef.current?.contains(e.target as Node);
-              if (!isVolumeControl && !(e.target instanceof HTMLButtonElement) && !(e.target instanceof HTMLInputElement)) {
-                e.stopPropagation();
-                dragControls.start(e);
-              }
-            }}
-            onTouchStart={handleSwipeStart}
-            onTouchEnd={handleSwipeEnd}
-            onDragStart={() => setIsDragging(true)}
-            onDragEnd={() => setIsDragging(false)}
-          >
-            <div className="absolute -top-6 pb-7 z-1 z-50 left-0 rounded-b-none rounded-t-lg bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-70 backdrop-blur-md text-black dark:text-white text-xs font-semibold px-3 py-1.5 shadow-none">
-              Minha playlist 😛
-            </div>
-            <div className="relative w-[300px] sm:w-[480px] bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-70 backdrop-blur-md rounded-xl sm:rounded-2xl text-black dark:text-white px-3 z-50 sm:px-6 py-2 sm:py-3 flex flex-col sm:flex-row items-center justify-between shadow-lg sm:shadow-2xl">
-              <button
-                onClick={() => setIsVisible(false)}
-                className="absolute -top-1.5 -right-1.5 bg-gray-200 dark:bg-gray-700 rounded-full p-1 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                aria-label="Close player"
+    <>
+      {/* Persistent Player (Hidden) */}
+      <div className="hidden">
+        <ReactPlayer
+          ref={playerRef}
+          url={url}
+          playing={isPlaying}
+          volume={volume * fadeOpacity}
+          muted={isMuted}
+          playsinline
+          onPlay={handlePlay}
+          onError={handleError}
+          onProgress={handleProgress}
+          onDuration={handleDuration}
+          onEnded={nextTrack}
+        />
+      </div>
+
+      <AnimatePresence>
+        {isVisible && (
+          <div className="fixed inset-0 z-[100] flex items-end justify-center pointer-events-none pb-6 px-8 md:px-4">
+            <motion.div
+              ref={containerRef}
+              initial={{ y: '100%' }}
+              animate={{ y: isMinimized ? 'calc(100% + 16px)' : 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="pointer-events-auto relative w-full max-w-2xl"
+            >
+              {/* Tag */}
+              <button 
+                className="absolute -top-6 left-6 bg-black/80 dark:bg-white/90 backdrop-blur-md text-white dark:text-black text-[10px] font-bold px-3 py-1.5 rounded-t-lg shadow-sm cursor-pointer flex items-center gap-2 hover:pb-2 transition-all"
+                onClick={() => setIsMinimized(!isMinimized)}
               >
-                <X size={12} className="sm:w-4 sm:h-4" />
+                <span>Minha playlist 😛</span>
+                {isMinimized && isPlaying && (
+                  <div className="flex gap-0.5 items-end h-3">
+                     {[0.6, 1, 0.8].map((scale, i) => (
+                        <motion.div
+                          key={i}
+                          className="w-0.5 bg-green-500 rounded-full"
+                          initial={{ height: 4 }}
+                          animate={{ height: [4, 4 * scale + 4, 4] }}
+                          transition={{
+                            duration: 0.6,
+                            repeat: Infinity,
+                            delay: i * 0.1,
+                            repeatType: "reverse"
+                          }}
+                        />
+                     ))}
+                  </div>
+                )}
               </button>
 
-              <div className="hidden">
-                <ReactPlayer
-                  ref={playerRef}
-                  url={url}
-                  playing={isPlaying}
-                  volume={volume}
-                  muted={isMuted}
-                  playsinline
-                  onPlay={handlePlay}
-                  onError={handleError}
-                  onProgress={handleProgress}
-                  onDuration={handleDuration}
-                  onEnded={nextTrack}
-                />
+              {/* Main Card */}
+              <div 
+                className="group relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              >
+                {/* Progress Bar (Top Edge) */}
+
+
+                <div className="flex flex-wrap md:flex-nowrap items-center p-3 md:p-4 gap-x-3 gap-y-1">
+                  {/* Close Button (Absolute) */}
+                  <button
+                    onClick={() => setIsMinimized(true)}
+                    className="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 z-10"
+                  >
+                    <X size={14} />
+                  </button>
+
+                  {/* Track Info */}
+                  <div className="flex items-center gap-3 flex-1 min-w-0 md:max-w-[40%]">
+                    <div className="relative group/art shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={thumbnail}
+                        alt={title}
+                        className={`w-10 h-10 md:w-14 md:h-14 rounded-lg object-cover shadow-md transition-transform duration-500 ${isPlaying ? 'scale-100' : 'scale-95 grayscale-[0.2]'}`}
+                      />
+                      <div className="absolute inset-0 bg-black/20 rounded-lg opacity-0 group-hover/art:opacity-100 transition-opacity flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col min-w-0">
+                      <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate pr-4">{title}</h4>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{artist}</p>
+                    </div>
+                  </div>
+
+                  {/* Controls (Center/Right on Mobile) */}
+                  <div className="flex items-center gap-1 md:gap-4 md:absolute md:left-1/2 md:-translate-x-1/2">
+                    <button 
+                      onClick={prevTrack}
+                      className="p-2 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-all active:scale-95"
+                    >
+                      <SkipBack size={20} />
+                    </button>
+
+                    <button 
+                      onClick={handlePlayPause}
+                      className="p-2 md:p-3 bg-black dark:bg-white text-white dark:text-black rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
+                    >
+                      {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
+                    </button>
+
+                    <button 
+                      onClick={nextTrack}
+                      className="p-2 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-all active:scale-95"
+                    >
+                      <SkipForward size={20} />
+                    </button>
+                  </div>
+
+                  {/* Right Section: Time & Volume */}
+                  <div className="hidden md:flex items-center gap-4 w-full md:w-auto justify-end flex-1">
+                    {/* Time Display */}
+                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 tabular-nums">
+                      {formatTime(progress.playedSeconds)} / {formatTime(duration)}
+                    </div>
+
+                    {/* Volume Control */}
+                    <div className="flex items-center gap-2 group/vol">
+                      <button 
+                        onClick={toggleMute}
+                        className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                      >
+                        {isMuted || volume === 0 ? <VolumeX size={18} /> : volume < 0.5 ? <Volume1 size={18} /> : <Volume2 size={18} />}
+                      </button>
+                      <div className="w-20 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden relative">
+                        <div 
+                          className="absolute inset-y-0 left-0 bg-gray-800 dark:bg-gray-200" 
+                          style={{ width: `${volume * 100}%` }} 
+                        />
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.01"
+                          value={volume}
+                          onChange={handleVolumeChange}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mobile Time (Bottom) */}
+                  <div className="w-full md:hidden flex items-center justify-between mt-1 px-1 basis-full">
+                    <span className="text-[10px] text-gray-500 font-medium tabular-nums">{formatTime(progress.playedSeconds)}</span>
+                    <span className="text-[10px] text-gray-500 font-medium tabular-nums">{formatTime(duration)}</span>
+                  </div>
+                </div>
+
+                {/* Universal Seek Bar (Overlay on bottom edge) */}
+                <div className="absolute bottom-0 left-0 right-0 h-1.5 md:h-1 bg-transparent md:hover:h-2 transition-all group/seek cursor-pointer">
+                   <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 opacity-100 md:opacity-0 md:group-hover/seek:opacity-100 transition-opacity" />
+                   <div 
+                      className="absolute inset-y-0 left-0 bg-green-500 transition-all" 
+                      style={{ width: `${(progress.played || 0) * 100}%` }} 
+                    />
+                   <input
+                      type="range"
+                      min="0"
+                      max={duration || 100}
+                      step="0.1"
+                      value={progress.playedSeconds}
+                      onMouseDown={handleSeekStart}
+                      onTouchStart={handleSeekStart}
+                      onChange={handleSeekChange}
+                      onMouseUp={handleSeekEnd}
+                      onTouchEnd={handleSeekEnd}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                </div>
               </div>
 
+              {/* Autoplay Blocker */}
               {autoplayBlocked && (
-                <div className="absolute inset-0 bg-black bg-opacity-70 rounded-xl flex items-center justify-center p-4">
-                  <button 
-                    onClick={() => setIsPlaying(true)}
-                    className="bg-green-500 text-white px-4 py-2 rounded-full flex items-center gap-2"
-                  >
-                    <Play size={16} />
-                    <span>Tap to Play</span>
-                  </button>
+                <div className="absolute inset-0 -top-12 flex items-center justify-center z-50 pointer-events-none">
+                   <motion.button
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      onClick={() => {
+                        setIsPlaying(true);
+                        setAutoplayBlocked(false);
+                      }}
+                      className="pointer-events-auto bg-green-500 text-white px-6 py-2 rounded-full font-bold shadow-lg flex items-center gap-2 hover:bg-green-600 transition-colors"
+                    >
+                      <Play size={16} fill="currentColor" />
+                      <span>Tap to Play</span>
+                    </motion.button>
                 </div>
               )}
-
-              <div className="w-full sm:w-[180px] flex items-center gap-2 mb-1 sm:mb-0 overflow-hidden">
-                <div className="relative flex-shrink-0">
-                  <img
-                    src={thumbnail}
-                    alt="Album cover"
-                    className="w-8 h-8 sm:w-12 sm:h-12 rounded sm:rounded-lg object-cover shadow-sm sm:shadow-md"
-                  />
-                </div>
-                <div className="overflow-hidden flex-1 min-w-0">
-                  <h4 className="text-xs sm:text-sm font-semibold text-ellipsis whitespace-nowrap overflow-hidden">
-                    {title}
-                  </h4>
-                  <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 truncate">
-                    {artist}
-                  </p>
-                </div>
-              </div>
-
-              <div className="hidden sm:flex flex-col items-center gap-2 w-[200px]">
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); prevTrack(); }} 
-                    className="p-2 sm:p-3 hover:scale-105 active:scale-95 transition-transform"
-                    aria-label="Previous track"
-                  >
-                    <SkipBack size={16} className="sm:w-5 sm:h-5" />
-                  </button>
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); setIsPlaying(!isPlaying); }} 
-                    className="p-2 sm:p-3 bg-green-500 text-white rounded-full hover:scale-105 active:scale-95 transition-transform"
-                    aria-label={isPlaying ? "Pause" : "Play"}
-                  >
-                    {isPlaying ? (
-                      <Pause size={18} className="sm:w-6 sm:h-6" />
-                    ) : (
-                      <Play size={18} className="sm:w-6 sm:h-6" />
-                    )}
-                  </button>
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); nextTrack(); }} 
-                    className="p-2 sm:p-3 hover:scale-105 active:scale-95 transition-transform"
-                    aria-label="Next track"
-                  >
-                    <SkipForward size={16} className="sm:w-5 sm:h-5" />
-                  </button>
-                </div>
-                <div className="w-full flex items-center gap-1 sm:gap-2">
-                  <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 min-w-[2rem] sm:min-w-[2.5rem]">
-                    {formatTime(progress.playedSeconds)}
-                  </span>
-                  <div className="flex-1 bg-gray-300 dark:bg-gray-700 h-1 sm:h-1.5 rounded-full overflow-hidden">
-                    <motion.div 
-                      className="bg-green-500 h-full rounded-full" 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progress.played * 100}%` }}
-                      transition={{ duration: 0.2 }}
-                    />
-                  </div>
-                  <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 min-w-[2rem] sm:min-w-[2.5rem]">
-                    {formatTime(duration)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="w-full sm:hidden flex items-center justify-between mt-1">
-                <button 
-                  onClick={(e) => { e.stopPropagation(); prevTrack(); }} 
-                  className="p-2 hover:scale-105 active:scale-95 transition-transform"
-                  aria-label="Previous track"
-                >
-                  <SkipBack size={16} />
-                </button>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); setIsPlaying(!isPlaying); }} 
-                  className="p-2 bg-green-500 text-white rounded-full hover:scale-105 active:scale-95 transition-transform"
-                  aria-label={isPlaying ? "Pause" : "Play"}
-                >
-                  {isPlaying ? <Pause size={18} /> : <Play size={18} />}
-                </button>
-                <button 
-                  onClick={toggleMute}
-                  className="p-2 hover:scale-105 active:scale-95 transition-transform"
-                  aria-label={isMuted ? "Unmute" : "Mute"}
-                >
-                  {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-                </button>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); nextTrack(); }} 
-                  className="p-2 hover:scale-105 active:scale-95 transition-transform"
-                  aria-label="Next track"
-                >
-                  <SkipForward size={16} />
-                </button>
-              </div>
-              
-              <div className="w-full sm:hidden mt-1 flex items-center gap-1">
-                <span className="text-[10px] text-gray-600 dark:text-gray-400 min-w-[2rem]">
-                  {formatTime(progress.playedSeconds)}
-                </span>
-                <div className="flex-1 bg-gray-300 dark:bg-gray-700 h-1 rounded-full overflow-hidden">
-                  <motion.div 
-                    className="bg-green-500 h-full rounded-full" 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress.played * 100}%` }}
-                    transition={{ duration: 0.2 }}
-                  />
-                </div>
-                <span className="text-[10px] text-gray-600 dark:text-gray-400 min-w-[2rem]">
-                  {formatTime(duration)}
-                </span>
-              </div>
-
-              <div 
-                ref={volumeRef}
-                className="hidden sm:flex items-center gap-2 w-[70px] sm:w-[80px]"
-                onMouseEnter={() => setIsVolumeHovered(true)}
-                onMouseLeave={() => setIsVolumeHovered(false)}
-              >
-                <button onClick={toggleMute} className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
-                  {isMuted ? <VolumeX size={16} className="sm:w-5 sm:h-5" /> : <Volume2 size={16} className="sm:w-5 sm:h-5" />}
-                </button>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value={volume}
-                  onChange={(e) => {
-                    const newVolume = parseFloat(e.target.value);
-                    setVolume(newVolume);
-                    setIsMuted(newVolume === 0);
-                  }}
-                  className="w-full accent-green-500 h-1 sm:h-1.5"
-                  aria-label="Volume control"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

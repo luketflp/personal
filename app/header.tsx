@@ -4,15 +4,10 @@ import { Menu, X } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import TerminalTyping from '@/components/terminal-typing';
 import LanguageSwitcher from '@/components/language-switcher';
-import type { Language } from '@/lib/i18n/dictionaries';
+import type { Dictionary, Language } from '@/lib/i18n/dictionaries';
 
 interface HeaderProps {
-  dictionary: {
-    nav: {
-      about: string;
-      skills: string;
-    };
-  };
+  dictionary: Dictionary
   language: Language;
   handleLanguageChange: (language: Language) => void;
 }
