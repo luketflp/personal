@@ -66,6 +66,12 @@ const ptTracks: Track[] = [
     url: "https://www.youtube.com/watch?v=oeEsLF02TwQ",
     thumbnail: "https://i.ytimg.com/vi/oeEsLF02TwQ/hqdefault.jpg?sqp=-oaymwFBCOADEI4CSFryq4qpAzMIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB8AEB-AHUBoAC4AOKAgwIABABGGYgZihmMA8=&rs=AOn4CLDnxCQ6gsQFlm-ev1kZp1XvhReUNg"
   },
+  {
+    title: "Cássia Eller - Por enquanto",
+    artist: "Cássia Eller",
+    url: "https://www.youtube.com/watch?v=VKag5mHFlUc&list=RDVKag5mHFlUc&start_radio=1",
+    thumbnail: "https://i.ytimg.com/vi/VKag5mHFlUc/hqdefault.jpg?sqp=-oaymwFBCOADEI4CSFryq4qpAzMIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB8AEB-AGEBYAC4AOKAgwIABABGBYgFyh_MA8=&rs=AOn4CLDMCkIP6_brX7sfgDYrV2YGSVO0IA"
+  }
 ];
 
 const esTracks: Track[] = [
@@ -89,12 +95,6 @@ const enTracks: Track[] = [
     artist: "Lady Gaga, Bruno Mars",
     url: "https://www.youtube.com/watch?v=kPa7bsKwL-c",
     thumbnail: "https://i.ytimg.com/vi/kPa7bsKwL-c/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLCP__7GEQfQgkh0AfV4704HTYiVUA"
-  },
-  {
-    title: "Cássia Eller - Por enquanto",
-    artist: "Cássia Eller",
-    url: "https://www.youtube.com/watch?v=VKag5mHFlUc&list=RDVKag5mHFlUc&start_radio=1",
-    thumbnail: "https://i.ytimg.com/vi/VKag5mHFlUc/hqdefault.jpg?sqp=-oaymwFBCOADEI4CSFryq4qpAzMIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB8AEB-AGEBYAC4AOKAgwIABABGBYgFyh_MA8=&rs=AOn4CLDMCkIP6_brX7sfgDYrV2YGSVO0IA"
   }
 ]
 
