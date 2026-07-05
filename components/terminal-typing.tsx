@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-const TerminalTyping = ({ 
-  text = "Lucas Alexander", 
+const TerminalTyping = ({
+  text = "Lucas Alexander",
   typingSpeed = 150,
   erasingSpeed = 75,
   pauseBeforeErasing = 2000,
@@ -17,11 +17,11 @@ const TerminalTyping = ({
   const [displayText, setDisplayText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
   const [phase, setPhase] = useState('typing'); // 'typing', 'erasing', 'pauseBeforeErasing', 'pauseBeforeRetyping'
-  
+
   // Main effect to handle the animation cycle
   useEffect(() => {
     let timeout: NodeJS.Timeout;
-    
+
     // Phase 1: Typing
     if (phase === 'typing') {
       if (displayText.length < text.length) {
@@ -32,7 +32,7 @@ const TerminalTyping = ({
         // Finished typing, now pause before erasing
         setPhase('pauseBeforeErasing');
       }
-    } 
+    }
     // Phase 2: Pause after typing
     else if (phase === 'pauseBeforeErasing') {
       timeout = setTimeout(() => {
@@ -56,23 +56,23 @@ const TerminalTyping = ({
         setPhase('typing');
       }, pauseBeforeRetyping);
     }
-    
+
     return () => clearTimeout(timeout);
   }, [displayText, text, phase, typingSpeed, erasingSpeed, pauseBeforeErasing, pauseBeforeRetyping]);
-  
+
   // Blinking cursor effect
   useEffect(() => {
     const cursorTimer = setInterval(() => {
       setShowCursor(prev => !prev);
     }, cursorBlinkSpeed);
-    
+
     return () => clearInterval(cursorTimer);
   }, [cursorBlinkSpeed]);
 
   // Generate border and shadow classes based on props
   const borderClass = showBorder ? 'border border-gray-200' : '';
   const shadowClass = showShadow ? 'shadow-sm' : '';
-  
+
   return (
     <span className={`text-${textColor} font-bold text-${fontSize} flex items-center whitespace-nowrap dark:text-white`} style={{ color: textColor.startsWith('#') ? textColor : undefined }}>
       {prefix}{displayText}
