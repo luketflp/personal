@@ -446,7 +446,7 @@ export default function Home() {
                   >
                     <Image
                       src="/hero-me.png"
-                      alt="Lucas portrait"
+                      alt="Lucas Alexander, full-stack software engineer"
                       fill
                       priority
                       draggable={false}

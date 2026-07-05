@@ -13,10 +13,27 @@ const TITLE = 'Lucas Alexander | Software Engineer'
 const DESCRIPTION =
   'Full-stack engineer who builds web systems end to end — from infrastructure to application. Marketplaces, payments, and products in Ruby on Rails, React, and Next.js.'
 
+const PERSON_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Lucas Alexander',
+  url: SITE_URL,
+  image: `${SITE_URL}/hero-me.png`,
+  jobTitle: 'Software Engineer',
+  description: DESCRIPTION,
+  sameAs: [
+    'https://github.com/luketflp',
+    'https://www.linkedin.com/in/luca-soares/',
+  ],
+}
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: TITLE,
   description: DESCRIPTION,
+  alternates: {
+    canonical: '/',
+  },
   icons: {
     icon: '/favicon.ico',
   },
@@ -50,8 +67,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head />
+    <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(PERSON_SCHEMA) }}
+        />
+      </head>
 
       <body className={inter.className}>
         <Analytics />
