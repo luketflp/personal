@@ -1,0 +1,1 @@
+ALTER TABLE "quotes" ADD COLUMN "language" varchar(2) DEFAULT 'pt' NOT NULL;

@@ -7,6 +7,12 @@ try {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Pin the workspace root to this project so Next doesn't pick a stray
+  // lockfile elsewhere on the machine (silences the multi-lockfile warning).
+  outputFileTracingRoot: import.meta.dirname,
+  turbopack: {
+    root: import.meta.dirname,
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
