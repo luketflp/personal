@@ -10,6 +10,15 @@ const nextConfig = {
   // Pin the workspace root to this project so Next doesn't pick a stray
   // lockfile elsewhere on the machine (silences the multi-lockfile warning).
   outputFileTracingRoot: import.meta.dirname,
+  // The OG image routes readFile() these at request time; make sure they end
+  // up inside the serverless function bundle on Vercel.
+  outputFileTracingIncludes: {
+    '/opengraph-image': ['./assets/fonts/**/*.ttf', './public/hero-me.png'],
+    '/q/[slug]/opengraph-image': [
+      './assets/fonts/**/*.ttf',
+      './public/hero-me.png',
+    ],
+  },
   turbopack: {
     root: import.meta.dirname,
   },
