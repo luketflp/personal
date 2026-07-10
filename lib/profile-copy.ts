@@ -24,7 +24,6 @@ export type ProfileCopy = {
   }>
   contactTitle: string
   contactHeading: string
-  contactDescription: string
   contactSupport: string
 }
 
@@ -88,9 +87,7 @@ export const PROFILE_COPY = {
     ],
     contactTitle: 'Contato',
     contactHeading:
-      'Se meu perfil faz sentido para o seu time, vamos conversar.',
-    contactDescription:
-      'Estou disponível para oportunidades full-stack e frontend, com foco em produtos bem construídos, interfaces cuidadas e execução consistente. Baseado em Miami, FL — residente permanente nos EUA, sem necessidade de patrocínio de visto.',
+      'Se meu perfil faz sentido para a sua necessidade, vamos conversar.',
     contactSupport:
       'LinkedIn é o melhor caminho para iniciar a conversa; no GitHub, você pode revisar projetos e exemplos reais de implementação.',
   },
@@ -151,9 +148,7 @@ export const PROFILE_COPY = {
       },
     ],
     contactTitle: 'Contact',
-    contactHeading: 'If my profile fits your team, let’s talk.',
-    contactDescription:
-      'I’m open to full-stack and frontend opportunities, with a focus on well-built products, thoughtful interfaces, and consistent execution. Based in Miami, FL — US Permanent Resident, no visa sponsorship required.',
+    contactHeading: 'If my profile fits your needs, let’s talk.',
     contactSupport:
       'LinkedIn is the best place to start the conversation, and GitHub is where you can review projects and real implementation samples.',
   },
@@ -216,9 +211,7 @@ export const PROFILE_COPY = {
       },
     ],
     contactTitle: 'Contacto',
-    contactHeading: 'Si mi perfil encaja con tu equipo, conversemos.',
-    contactDescription:
-      'Estoy disponible para oportunidades full-stack y frontend, con foco en productos bien construidos, interfaces cuidadas y ejecución sólida. Radicado en Miami, FL — residente permanente en EE. UU., sin necesidad de patrocinio de visa.',
+    contactHeading: 'Si mi perfil encaja con tus necesidades, conversemos.',
     contactSupport:
       'LinkedIn es la mejor vía para iniciar la conversación, y en GitHub puedes revisar proyectos y ejemplos reales de implementación.',
   },

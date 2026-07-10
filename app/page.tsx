@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { ContactForm } from '@/components/contact-form'
 import { type Language, dictionaries } from '@/lib/i18n/dictionaries'
 import { PROFILE_COPY } from '@/lib/profile-copy'
 import {
@@ -39,7 +40,8 @@ import {
 } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
+import { BackToQuote } from '@/components/back-to-quote'
 import Header from './header'
 
 const SOCIAL_LINKS = {
@@ -165,6 +167,15 @@ export default function Home() {
   })
 
   useEffect(() => {
+    // Coming from a quote (/?q=…&lang=…), match the quote's language;
+    // don't persist it so the visitor's saved preference stays intact.
+    const urlLanguage = new URLSearchParams(window.location.search).get(
+      'lang',
+    ) as Language | null
+    if (urlLanguage && ['pt', 'en', 'es'].includes(urlLanguage)) {
+      setLanguage(urlLanguage)
+      return
+    }
     const savedLanguage = localStorage.getItem('language') as Language
     if (savedLanguage && ['pt', 'en', 'es'].includes(savedLanguage)) {
       setLanguage(savedLanguage)
@@ -285,6 +296,10 @@ export default function Home() {
         language={language}
         handleLanguageChange={handleLanguageChange}
       />
+
+      <Suspense fallback={null}>
+        <BackToQuote language={language} />
+      </Suspense>
 
       <main className="flex-1">
         <section
@@ -737,63 +752,56 @@ export default function Home() {
               whileInView="visible"
               viewport={sectionViewport}
               variants={fadeInUp}
-              {...cardHover}
+              className="grid items-center gap-10 md:grid-cols-2 lg:gap-16"
             >
-              <Card className="overflow-hidden border-none bg-[linear-gradient(135deg,hsl(var(--background)),hsl(var(--muted)))] shadow-[0_24px_80px_hsl(var(--foreground)/0.07)]">
-                <motion.div
-                  className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/0.14),transparent_32%),radial-gradient(circle_at_bottom_left,hsl(var(--foreground)/0.06),transparent_34%)]"
-                  animate={
-                    shouldReduceMotion
-                      ? undefined
-                      : { opacity: [0.65, 1, 0.72], scale: [1, 1.03, 1] }
-                  }
-                  transition={
-                    shouldReduceMotion
-                      ? undefined
-                      : {
-                          duration: 8,
-                          repeat: Number.POSITIVE_INFINITY,
-                          ease: HERO_EASE_INOUT,
-                        }
-                  }
-                />
-                <CardContent className="grid gap-8 p-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:p-10">
-                  <div className="space-y-4">
-                    <p className="text-sm font-medium uppercase tracking-[0.3em] text-muted-foreground">
-                      {profile.contactTitle}
-                    </p>
-                    <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                      {profile.contactHeading}
-                    </h2>
-                    <p className="max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
-                      {profile.contactDescription}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {profile.contactSupport}
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-3 sm:flex-row md:flex-col">
-                    <Button asChild size="lg">
-                      <Link
-                        href={SOCIAL_LINKS.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Linkedin className="h-4 w-4" />
-                        LinkedIn
-                      </Link>
-                    </Button>
-                    <Button asChild size="lg" variant="outline">
-                      <Link
-                        href={SOCIAL_LINKS.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Github className="h-4 w-4" />
-                        GitHub
-                      </Link>
-                    </Button>
-                  </div>
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <p className="text-sm font-medium uppercase tracking-[0.3em] text-muted-foreground">
+                    {profile.contactTitle}
+                  </p>
+                  <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+                    {profile.contactHeading}
+                  </h2>
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Button asChild size="lg">
+                    <Link
+                      href={SOCIAL_LINKS.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Linkedin className="h-4 w-4" />
+                      LinkedIn
+                    </Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline">
+                    <Link
+                      href={SOCIAL_LINKS.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Github className="h-4 w-4" />
+                      GitHub
+                    </Link>
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {profile.contactSupport}
+                </p>
+              </div>
+
+              <Card className="shadow-[0_24px_80px_hsl(var(--foreground)/0.07)]">
+                <CardHeader>
+                  <CardTitle>{dictionary.quoteRequest.title}</CardTitle>
+                  <CardDescription>
+                    {dictionary.quoteRequest.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ContactForm
+                    copy={dictionary.quoteRequest}
+                    language={language}
+                  />
                 </CardContent>
               </Card>
             </motion.div>

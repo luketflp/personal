@@ -50,6 +50,19 @@ export type Dictionary = {
     emailMe: string
     linkedin: string
   }
+  quoteRequest: {
+    title: string
+    description: string
+    name: string
+    email: string
+    phone: string
+    phoneInvalid: string
+    message: string
+    submit: string
+    sending: string
+    success: string
+    error: string
+  }
   footer: {
     rights: string
   }
@@ -114,6 +127,19 @@ export const dictionaries: Record<Language, Dictionary> = {
       emailMe: 'Me Envie um Email',
       linkedin: 'LinkedIn',
     },
+    quoteRequest: {
+      title: 'Envie uma mensagem',
+      description: 'Conte o que você precisa e eu retorno em breve.',
+      name: 'Nome',
+      email: 'E-mail',
+      phone: 'Telefone (opcional)',
+      phoneInvalid: 'Telefone inválido',
+      message: 'Mensagem',
+      submit: 'Enviar mensagem',
+      sending: 'Enviando…',
+      success: 'Mensagem enviada! Retorno em breve.',
+      error: 'Não foi possível enviar. Tente novamente.',
+    },
     footer: {
       rights: 'Todos os direitos reservados.',
     },
@@ -174,6 +200,19 @@ export const dictionaries: Record<Language, Dictionary> = {
         'Feel free to reach out if you have any questions or want to work together.',
       emailMe: 'Email Me',
       linkedin: 'LinkedIn',
+    },
+    quoteRequest: {
+      title: 'Send a message',
+      description: 'Tell me what you need and I’ll get back to you soon.',
+      name: 'Name',
+      email: 'Email',
+      phone: 'Phone (optional)',
+      phoneInvalid: 'Invalid phone number',
+      message: 'Message',
+      submit: 'Send message',
+      sending: 'Sending…',
+      success: 'Message sent! I’ll be in touch soon.',
+      error: 'Could not send. Please try again.',
     },
     footer: {
       rights: 'All rights reserved.',
@@ -236,6 +275,19 @@ export const dictionaries: Record<Language, Dictionary> = {
         'No dudes en contactarme si tienes alguna pregunta o quieres trabajar juntos.',
       emailMe: 'Envíame un Email',
       linkedin: 'LinkedIn',
+    },
+    quoteRequest: {
+      title: 'Envía un mensaje',
+      description: 'Cuéntame qué necesitas y te responderé pronto.',
+      name: 'Nombre',
+      email: 'Correo',
+      phone: 'Teléfono (opcional)',
+      phoneInvalid: 'Teléfono inválido',
+      message: 'Mensaje',
+      submit: 'Enviar mensaje',
+      sending: 'Enviando…',
+      success: '¡Mensaje enviado! Te contactaré pronto.',
+      error: 'No se pudo enviar. Inténtalo de nuevo.',
     },
     footer: {
       rights: 'Todos los derechos reservados.',
