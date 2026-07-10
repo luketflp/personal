@@ -49,8 +49,8 @@ export async function loadOgAssets() {
   }
 }
 
-const NAVY = '#0D1B30'
-const ACCENT = '#3E7BFA'
+const PETROL = '#032B36'
+const TEAL_GRADIENT = 'linear-gradient(60deg, #0096A2, #1ED6BB)'
 
 export function OgCard({
   photoSrc,
@@ -73,7 +73,7 @@ export function OgCard({
         display: 'flex',
         position: 'relative',
         fontFamily: 'Inter',
-        background: 'linear-gradient(160deg, #F6F8FB 0%, #E7EDF5 100%)',
+        background: 'linear-gradient(160deg, #F7FAFB 0%, #E3EEF0 100%)',
       }}
     >
       {/* Soft glow + hairline ring behind the photo */}
@@ -86,7 +86,7 @@ export function OgCard({
           height: 500,
           borderRadius: 250,
           background:
-            'radial-gradient(circle, rgba(62,123,250,0.18) 0%, rgba(62,123,250,0) 68%)',
+            'radial-gradient(circle, rgba(30,214,187,0.20) 0%, rgba(30,214,187,0) 68%)',
         }}
       />
       <div
@@ -97,7 +97,7 @@ export function OgCard({
           width: 396,
           height: 396,
           borderRadius: 198,
-          border: '1px solid rgba(13,27,48,0.12)',
+          border: '1px solid rgba(3,43,54,0.12)',
         }}
       />
 
@@ -109,7 +109,7 @@ export function OgCard({
           top: -140,
           width: 810,
           height: 910,
-          background: `radial-gradient(circle at 22% 18%, #16294A 0%, ${NAVY} 58%)`,
+          background: `radial-gradient(circle at 22% 18%, #005670 0%, ${PETROL} 58%)`,
           transform: 'rotate(-6deg)',
         }}
       />
@@ -121,7 +121,7 @@ export function OgCard({
           width: 8,
           height: 910,
           background:
-            'linear-gradient(180deg, rgba(62,123,250,0.95) 0%, rgba(62,123,250,0) 85%)',
+            'linear-gradient(180deg, rgba(30,214,187,0.95) 0%, rgba(0,150,162,0) 85%)',
           transform: 'rotate(-6deg)',
         }}
       />
@@ -145,7 +145,7 @@ export function OgCard({
             fontFamily: 'Space Grotesk',
             fontSize: 68,
             fontWeight: 700,
-            color: '#F8FAFD',
+            color: '#F7FDFC',
             letterSpacing: -2,
           }}
         >
@@ -164,7 +164,7 @@ export function OgCard({
               width: 34,
               height: 5,
               borderRadius: 3,
-              background: ACCENT,
+              background: TEAL_GRADIENT,
               marginRight: 16,
             }}
           />
@@ -172,7 +172,7 @@ export function OgCard({
             style={{
               display: 'flex',
               fontSize: 28,
-              color: '#A7B8D4',
+              color: '#9EC7CD',
             }}
           >
             {subtitle}
@@ -192,7 +192,7 @@ export function OgCard({
                 fontSize: 18,
                 textTransform: 'uppercase',
                 letterSpacing: 7,
-                color: '#7B92B8',
+                color: '#74A8B2',
               }}
             >
               {label}
@@ -203,7 +203,7 @@ export function OgCard({
                 marginTop: 12,
                 fontSize: 38,
                 fontWeight: 600,
-                color: '#EFF4FB',
+                color: '#EFF8F7',
               }}
             >
               {headline}
@@ -221,7 +221,7 @@ export function OgCard({
           display: 'flex',
           fontSize: 19,
           letterSpacing: 2,
-          color: '#7B92B8',
+          color: '#74A8B2',
         }}
       >
         lucasalexander.com.br
