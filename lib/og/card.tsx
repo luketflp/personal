@@ -6,7 +6,7 @@ export const OG_SIZE = { width: 1200, height: 630 }
 // Literal process.cwd() joins so Vercel's output file tracing bundles the
 // assets into the serverless function (see outputFileTracingIncludes too).
 export async function loadOgAssets() {
-  const [photo, regular, semiBold, bold] = await Promise.all([
+  const [photo, inter, interSemiBold, spaceGrotesk] = await Promise.all([
     readFile(join(process.cwd(), 'public', 'hero-me.png')),
     readFile(
       join(process.cwd(), 'assets', 'fonts', 'inter', 'latin-400-normal.ttf'),
@@ -15,7 +15,13 @@ export async function loadOgAssets() {
       join(process.cwd(), 'assets', 'fonts', 'inter', 'latin-600-normal.ttf'),
     ),
     readFile(
-      join(process.cwd(), 'assets', 'fonts', 'inter', 'latin-700-normal.ttf'),
+      join(
+        process.cwd(),
+        'assets',
+        'fonts',
+        'space-grotesk',
+        'latin-700-normal.ttf',
+      ),
     ),
   ])
   return {
@@ -23,25 +29,28 @@ export async function loadOgAssets() {
     fonts: [
       {
         name: 'Inter',
-        data: regular,
+        data: inter,
         weight: 400 as const,
         style: 'normal' as const,
       },
       {
         name: 'Inter',
-        data: semiBold,
+        data: interSemiBold,
         weight: 600 as const,
         style: 'normal' as const,
       },
       {
-        name: 'Inter',
-        data: bold,
+        name: 'Space Grotesk',
+        data: spaceGrotesk,
         weight: 700 as const,
         style: 'normal' as const,
       },
     ],
   }
 }
+
+const NAVY = '#0D1B30'
+const ACCENT = '#3E7BFA'
 
 export function OgCard({
   photoSrc,
@@ -62,27 +71,81 @@ export function OgCard({
         width: '100%',
         height: '100%',
         display: 'flex',
+        position: 'relative',
         fontFamily: 'Inter',
-        background:
-          'linear-gradient(135deg, #ffffff 0%, #eef2f7 55%, #dde5ee 100%)',
+        background: 'linear-gradient(160deg, #F6F8FB 0%, #E7EDF5 100%)',
       }}
     >
+      {/* Soft glow + hairline ring behind the photo */}
       <div
         style={{
-          flex: 1,
+          position: 'absolute',
+          right: -10,
+          top: 70,
+          width: 500,
+          height: 500,
+          borderRadius: 250,
+          background:
+            'radial-gradient(circle, rgba(62,123,250,0.18) 0%, rgba(62,123,250,0) 68%)',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          right: 52,
+          top: 130,
+          width: 396,
+          height: 396,
+          borderRadius: 198,
+          border: '1px solid rgba(13,27,48,0.12)',
+        }}
+      />
+
+      {/* Slanted navy identity panel + accent seam */}
+      <div
+        style={{
+          position: 'absolute',
+          left: -80,
+          top: -140,
+          width: 810,
+          height: 910,
+          background: `radial-gradient(circle at 22% 18%, #16294A 0%, ${NAVY} 58%)`,
+          transform: 'rotate(-6deg)',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          left: 726,
+          top: -140,
+          width: 8,
+          height: 910,
+          background:
+            'linear-gradient(180deg, rgba(62,123,250,0.95) 0%, rgba(62,123,250,0) 85%)',
+          transform: 'rotate(-6deg)',
+        }}
+      />
+
+      {/* Text block */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 76,
+          top: 0,
+          width: 600,
+          height: 630,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          paddingLeft: 72,
-          paddingRight: 16,
         }}
       >
         <div
           style={{
             display: 'flex',
-            fontSize: 64,
+            fontFamily: 'Space Grotesk',
+            fontSize: 68,
             fontWeight: 700,
-            color: '#0f172a',
+            color: '#F8FAFD',
             letterSpacing: -2,
           }}
         >
@@ -91,14 +154,29 @@ export function OgCard({
         <div
           style={{
             display: 'flex',
-            marginTop: 14,
-            paddingTop: 16,
-            borderTop: '2px solid #cbd5e1',
-            fontSize: 30,
-            color: '#334155',
+            alignItems: 'center',
+            marginTop: 22,
           }}
         >
-          {subtitle}
+          <div
+            style={{
+              display: 'flex',
+              width: 34,
+              height: 5,
+              borderRadius: 3,
+              background: ACCENT,
+              marginRight: 16,
+            }}
+          />
+          <div
+            style={{
+              display: 'flex',
+              fontSize: 28,
+              color: '#A7B8D4',
+            }}
+          >
+            {subtitle}
+          </div>
         </div>
         {label && headline && (
           <div
@@ -111,10 +189,10 @@ export function OgCard({
             <div
               style={{
                 display: 'flex',
-                fontSize: 20,
+                fontSize: 18,
                 textTransform: 'uppercase',
-                letterSpacing: 8,
-                color: '#64748b',
+                letterSpacing: 7,
+                color: '#7B92B8',
               }}
             >
               {label}
@@ -122,10 +200,10 @@ export function OgCard({
             <div
               style={{
                 display: 'flex',
-                marginTop: 10,
+                marginTop: 12,
                 fontSize: 38,
                 fontWeight: 600,
-                color: '#0f172a',
+                color: '#EFF4FB',
               }}
             >
               {headline}
@@ -133,19 +211,32 @@ export function OgCard({
           </div>
         )}
       </div>
+
+      {/* Footer URL */}
       <div
         style={{
+          position: 'absolute',
+          left: 76,
+          bottom: 42,
           display: 'flex',
-          alignItems: 'flex-end',
-          paddingRight: 56,
+          fontSize: 19,
+          letterSpacing: 2,
+          color: '#7B92B8',
         }}
       >
-        <img
-          src={photoSrc}
-          width={444}
-          height={592}
-          style={{ objectFit: 'cover', objectPosition: 'top' }}
-        />
+        lucasalexander.com.br
+      </div>
+
+      {/* Photo */}
+      <div
+        style={{
+          position: 'absolute',
+          right: 44,
+          bottom: 0,
+          display: 'flex',
+        }}
+      >
+        <img src={photoSrc} width={430} height={573} />
       </div>
     </div>
   )

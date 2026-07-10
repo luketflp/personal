@@ -10,7 +10,11 @@ export default async function OpengraphImage() {
   const { photoSrc, fonts } = await loadOgAssets()
 
   return new ImageResponse(
-    <OgCard photoSrc={photoSrc} name={ISSUER.name} subtitle={ISSUER.title.en} />,
+    <OgCard
+      photoSrc={photoSrc}
+      name={ISSUER.name}
+      subtitle={ISSUER.title.en}
+    />,
     { ...OG_SIZE, fonts },
   )
 }

@@ -13,9 +13,9 @@ const nextConfig = {
   // The OG image routes readFile() these at request time; make sure they end
   // up inside the serverless function bundle on Vercel.
   outputFileTracingIncludes: {
-    '/opengraph-image': ['./assets/fonts/inter/*.ttf', './public/hero-me.png'],
+    '/opengraph-image': ['./assets/fonts/**/*.ttf', './public/hero-me.png'],
     '/q/[slug]/opengraph-image': [
-      './assets/fonts/inter/*.ttf',
+      './assets/fonts/**/*.ttf',
       './public/hero-me.png',
     ],
   },
