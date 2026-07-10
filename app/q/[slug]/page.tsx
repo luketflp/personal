@@ -123,6 +123,7 @@ export async function generateMetadata({
     title,
     description,
     robots: { index: false, follow: false },
+    // og:image comes from the opengraph-image.tsx file convention.
     openGraph: {
       title,
       description,
@@ -130,20 +131,11 @@ export async function generateMetadata({
       siteName: ISSUER.name,
       type: 'website',
       locale: LANGUAGE_LOCALES[lang].replace('-', '_'),
-      images: [
-        {
-          url: '/og-cover.png',
-          width: 1200,
-          height: 630,
-          alt: `${ISSUER.name} — ${ISSUER.title[lang]}`,
-        },
-      ],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: ['/og-cover.png'],
     },
   }
 }
