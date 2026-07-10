@@ -1,9 +1,10 @@
 'use client'
 
-import type React from "react"
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
-import { usePathname } from "next/navigation"
-import { ThemeProvider } from "@/components/theme-provider"
+import type React from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { usePathname } from 'next/navigation'
+import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from '@/components/ui/sonner'
 
 export default function AppLayout({
   children,
@@ -12,6 +13,13 @@ export default function AppLayout({
 }>) {
   const pathname = usePathname()
   const shouldReduceMotion = useReducedMotion()
+  // Routes sharing a key swap without the page transition: dashboard tabs,
+  // and quote ↔ home (customers hop between them).
+  const transitionKey = pathname.startsWith('/dashboard')
+    ? 'dashboard'
+    : pathname === '/' || pathname.startsWith('/q/')
+      ? 'home'
+      : pathname
 
   return (
     <ThemeProvider
@@ -23,22 +31,22 @@ export default function AppLayout({
     >
       <AnimatePresence mode="wait">
         <motion.div
-          key={pathname}
-          className="relative min-h-screen overflow-x-clip"
+          key={transitionKey}
+          className="page-transition relative min-h-screen overflow-x-clip"
           initial={
             shouldReduceMotion
               ? { opacity: 0 }
-              : { opacity: 0, y: 28, scale: 0.988, filter: "blur(14px)" }
+              : { opacity: 0, y: 28, scale: 0.988, filter: 'blur(14px)' }
           }
           animate={
             shouldReduceMotion
               ? { opacity: 1 }
-              : { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }
+              : { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }
           }
           exit={
             shouldReduceMotion
               ? { opacity: 0 }
-              : { opacity: 0, y: -14, scale: 1.004, filter: "blur(8px)" }
+              : { opacity: 0, y: -14, scale: 1.004, filter: 'blur(8px)' }
           }
           transition={{
             duration: shouldReduceMotion ? 0.2 : 0.55,
@@ -66,6 +74,7 @@ export default function AppLayout({
           {children}
         </motion.div>
       </AnimatePresence>
+      <Toaster />
     </ThemeProvider>
   )
 }
