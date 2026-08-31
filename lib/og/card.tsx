@@ -79,11 +79,11 @@ export function OgCard({
       <div
         style={{
           position: 'absolute',
-          left: -260,
-          top: -180,
-          width: 1080,
-          height: 990,
-          background: `radial-gradient(circle at 44% 46%, ${INK} 0%, ${INK} 42%, rgba(12,12,12,0) 70%)`,
+          left: 0,
+          top: 0,
+          width: 820,
+          height: 630,
+          background: `linear-gradient(90deg, ${INK} 0%, ${INK} 55%, rgba(12,12,12,0) 100%)`,
         }}
       />
 
