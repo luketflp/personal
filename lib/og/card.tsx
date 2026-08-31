@@ -49,8 +49,7 @@ export async function loadOgAssets() {
   }
 }
 
-const PETROL = '#032B36'
-const TEAL_GRADIENT = 'linear-gradient(60deg, #0096A2, #1ED6BB)'
+const INK = 'rgba(12, 12, 12, 0.96)'
 
 export function OgCard({
   photoSrc,
@@ -73,56 +72,18 @@ export function OgCard({
         display: 'flex',
         position: 'relative',
         fontFamily: 'Inter',
-        background: 'linear-gradient(160deg, #F7FAFB 0%, #E3EEF0 100%)',
+        background: '#FFFFFF',
       }}
     >
-      {/* Soft glow + hairline ring behind the photo */}
+      {/* Soft dark shadow under the text block so light text reads on white */}
       <div
         style={{
           position: 'absolute',
-          right: -10,
-          top: 70,
-          width: 500,
-          height: 500,
-          borderRadius: 250,
-          background:
-            'radial-gradient(circle, rgba(30,214,187,0.20) 0%, rgba(30,214,187,0) 68%)',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          right: 52,
-          top: 130,
-          width: 396,
-          height: 396,
-          borderRadius: 198,
-          border: '1px solid rgba(3,43,54,0.12)',
-        }}
-      />
-
-      {/* Slanted navy identity panel + accent seam */}
-      <div
-        style={{
-          position: 'absolute',
-          left: -80,
-          top: -140,
-          width: 810,
-          height: 910,
-          background: `radial-gradient(circle at 22% 18%, #005670 0%, ${PETROL} 58%)`,
-          transform: 'rotate(-6deg)',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          left: 726,
-          top: -140,
-          width: 8,
-          height: 910,
-          background:
-            'linear-gradient(180deg, rgba(30,214,187,0.95) 0%, rgba(0,150,162,0) 85%)',
-          transform: 'rotate(-6deg)',
+          left: -260,
+          top: -180,
+          width: 1080,
+          height: 990,
+          background: `radial-gradient(circle at 44% 46%, ${INK} 0%, ${INK} 42%, rgba(12,12,12,0) 70%)`,
         }}
       />
 
@@ -145,7 +106,7 @@ export function OgCard({
             fontFamily: 'Space Grotesk',
             fontSize: 68,
             fontWeight: 700,
-            color: '#F7FDFC',
+            color: '#FFFFFF',
             letterSpacing: -2,
           }}
         >
@@ -164,7 +125,7 @@ export function OgCard({
               width: 34,
               height: 5,
               borderRadius: 3,
-              background: TEAL_GRADIENT,
+              background: '#8C8C8C',
               marginRight: 16,
             }}
           />
@@ -172,7 +133,7 @@ export function OgCard({
             style={{
               display: 'flex',
               fontSize: 28,
-              color: '#9EC7CD',
+              color: '#C9C9C9',
             }}
           >
             {subtitle}
@@ -192,7 +153,7 @@ export function OgCard({
                 fontSize: 18,
                 textTransform: 'uppercase',
                 letterSpacing: 7,
-                color: '#74A8B2',
+                color: '#9A9A9A',
               }}
             >
               {label}
@@ -203,7 +164,7 @@ export function OgCard({
                 marginTop: 12,
                 fontSize: 38,
                 fontWeight: 600,
-                color: '#EFF8F7',
+                color: '#F2F2F2',
               }}
             >
               {headline}
@@ -221,7 +182,7 @@ export function OgCard({
           display: 'flex',
           fontSize: 19,
           letterSpacing: 2,
-          color: '#74A8B2',
+          color: '#B0B0B0',
         }}
       >
         lucasalexander.com.br
