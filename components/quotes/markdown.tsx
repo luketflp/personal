@@ -1,4 +1,5 @@
 import ReactMarkdown from 'react-markdown'
+import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 import { cn } from '@/lib/utils'
 
@@ -13,7 +14,11 @@ export function Markdown({
 }) {
   return (
     <div className={cn('md', className)}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+      {/* remark-breaks keeps single newlines as <br>, matching what the
+          author typed in the plain textareas (e.g. •-bulleted lines). */}
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+        {content}
+      </ReactMarkdown>
     </div>
   )
 }
