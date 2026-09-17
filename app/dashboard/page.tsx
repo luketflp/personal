@@ -9,6 +9,7 @@ import {
   Send,
 } from 'lucide-react'
 import { StatCard } from '@/components/dashboard/stat-card'
+import { ActivityCell } from '@/components/quotes/activity/activity-cell'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -22,6 +23,7 @@ import {
 } from '@/components/ui/table'
 import { DeleteQuoteButton } from '@/components/quotes/delete-quote-button'
 import { formatDate, formatMoney } from '@/lib/format'
+import { listActivitySummaries } from '@/lib/quotes/event-queries'
 import {
   QUOTE_LANGUAGE_LABELS,
   quoteLanguage,
@@ -34,7 +36,11 @@ import { computeTotals } from '@/lib/quotes/totals'
 export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
-  const quotes = await listQuotes()
+  const [quotes, activity] = await Promise.all([
+    listQuotes(),
+    listActivitySummaries(),
+  ])
+  const now = new Date()
   const counts = {
     total: quotes.length,
     draft: quotes.filter(q => q.status === 'draft').length,
@@ -73,6 +79,7 @@ export default async function DashboardPage() {
                   <TableHead>Código</TableHead>
                   <TableHead>Cliente</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Atividade</TableHead>
                   <TableHead>Idioma</TableHead>
                   <TableHead>Emissão</TableHead>
                   <TableHead className="text-right">Total</TableHead>
@@ -90,7 +97,7 @@ export default async function DashboardPage() {
                   const locale = quoteLocale(language)
                   return (
                     <TableRow key={quote.id}>
-                      <TableCell className="font-medium tabular-nums">
+                      <TableCell className="whitespace-nowrap font-medium tabular-nums">
                         {quote.code}
                       </TableCell>
                       <TableCell>
@@ -104,13 +111,21 @@ export default async function DashboardPage() {
                       <TableCell>
                         <Badge variant={status.variant}>{status.label}</Badge>
                       </TableCell>
+                      <TableCell>
+                        <ActivityCell
+                          quoteId={quote.id}
+                          status={quote.status}
+                          summary={activity.get(quote.id)}
+                          now={now}
+                        />
+                      </TableCell>
                       <TableCell className="text-muted-foreground">
                         {QUOTE_LANGUAGE_LABELS[language]}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {formatDate(quote.issueDate, locale)}
+                      <TableCell className="whitespace-nowrap text-muted-foreground">
+                        {formatDate(quote.issueDate, locale, 'medium')}
                       </TableCell>
-                      <TableCell className="text-right font-medium tabular-nums">
+                      <TableCell className="whitespace-nowrap text-right font-medium tabular-nums">
                         {formatMoney(totalCents, quote.currency, locale)}
                       </TableCell>
                       <TableCell>
