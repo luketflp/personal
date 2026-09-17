@@ -1,10 +1,13 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { Markdown } from '@/components/quotes/markdown'
 import { PrintButton } from '@/components/quotes/print-button'
+import { QuoteTracker } from '@/components/quotes/quote-tracker'
+import { SESSION_COOKIE, verifySessionToken } from '@/lib/auth/session'
 import { LANGUAGE_LOCALES, formatDate, formatMoney } from '@/lib/format'
 import { ISSUER } from '@/lib/quotes/issuer'
 import { quoteLanguage } from '@/lib/quotes/language'
@@ -153,6 +156,12 @@ export default async function PublicQuotePage({
   const t = LABELS[lang]
   const locale = LANGUAGE_LOCALES[lang]
 
+  // The owner previewing while logged in is not a client visit. The ingest
+  // route enforces the same rule; this just avoids sending the events at all.
+  const isOwner = await verifySessionToken(
+    (await cookies()).get(SESSION_COOKIE)?.value,
+  )
+
   const { subtotalCents, totalCents } = computeTotals(
     quote.items,
     quote.discountCents,
@@ -167,10 +176,12 @@ export default async function PublicQuotePage({
 
   return (
     <div className="min-h-screen bg-muted/40 py-10 print:bg-white print:py-0">
+      {!isOwner && <QuoteTracker slug={quote.slug} />}
       <div className="mx-auto max-w-3xl space-y-6 px-4">
         <div className="flex flex-wrap items-center justify-between gap-3 no-print">
           <Link
             href={`/?q=${quote.slug}&lang=${lang}`}
+            data-track="site_click"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
           >
             <ArrowLeft className="size-4" />
@@ -210,6 +221,7 @@ export default async function PublicQuotePage({
                   <p className="break-all">
                     <Link
                       href={`/?q=${quote.slug}&lang=${lang}`}
+                      data-track="site_click"
                       className="hover:underline"
                     >
                       {ISSUER.website}
@@ -277,7 +289,7 @@ export default async function PublicQuotePage({
           </section>
 
           {quote.scope && (
-            <section className="border-t py-6">
+            <section data-track-section="scope" className="border-t py-6">
               <p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground">
                 {t.scope}
               </p>
@@ -285,7 +297,10 @@ export default async function PublicQuotePage({
             </section>
           )}
 
-          <table className="w-full border-collapse text-sm">
+          <table
+            data-track-section="items"
+            className="w-full border-collapse text-sm"
+          >
             <thead>
               <tr className="border-y text-left text-muted-foreground">
                 <th className="py-2 font-medium">{t.description}</th>
@@ -322,7 +337,7 @@ export default async function PublicQuotePage({
             </tbody>
           </table>
 
-          <div className="mt-6 flex justify-end">
+          <div data-track-section="totals" className="mt-6 flex justify-end">
             <dl className="w-full max-w-xs space-y-1 text-sm">
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">{t.subtotal}</dt>
@@ -344,7 +359,10 @@ export default async function PublicQuotePage({
           </div>
 
           {quote.payment && (
-            <section className="mt-8 border-t pt-6">
+            <section
+              data-track-section="payment"
+              className="mt-8 border-t pt-6"
+            >
               <p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground">
                 {t.payment}
               </p>
@@ -353,7 +371,10 @@ export default async function PublicQuotePage({
           )}
 
           {(quote.notes || quote.terms) && (
-            <footer className="mt-8 space-y-4 border-t pt-6 text-sm text-muted-foreground">
+            <footer
+              data-track-section="notes"
+              className="mt-8 space-y-4 border-t pt-6 text-sm text-muted-foreground"
+            >
               {quote.notes && (
                 <div>
                   <p className="font-medium text-foreground">{t.notes}</p>
