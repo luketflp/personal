@@ -7,8 +7,8 @@ import {
   Pencil,
   Plus,
   Send,
-  type LucideIcon,
 } from 'lucide-react'
+import { StatCard } from '@/components/dashboard/stat-card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -28,47 +28,10 @@ import {
   quoteLocale,
 } from '@/lib/quotes/language'
 import { listQuotes } from '@/lib/quotes/queries'
+import { QUOTE_STATUS_BADGES } from '@/lib/quotes/status'
 import { computeTotals } from '@/lib/quotes/totals'
-import type { QuoteStatus } from '@/lib/db/schema'
 
 export const dynamic = 'force-dynamic'
-
-const STATUS: Record<
-  QuoteStatus,
-  {
-    label: string
-    variant: 'default' | 'secondary' | 'destructive' | 'outline'
-  }
-> = {
-  draft: { label: 'Rascunho', variant: 'outline' },
-  sent: { label: 'Enviado', variant: 'secondary' },
-  accepted: { label: 'Aceito', variant: 'default' },
-  declined: { label: 'Recusado', variant: 'destructive' },
-}
-
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-}: {
-  label: string
-  value: number
-  icon: LucideIcon
-}) {
-  return (
-    <Card>
-      <CardContent className="flex items-center gap-3 p-4">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-          <Icon className="size-5" />
-        </div>
-        <div>
-          <p className="text-2xl font-semibold leading-none">{value}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{label}</p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
 
 export default async function DashboardPage() {
   const quotes = await listQuotes()
@@ -122,7 +85,7 @@ export default async function DashboardPage() {
                     quote.items,
                     quote.discountCents,
                   )
-                  const status = STATUS[quote.status]
+                  const status = QUOTE_STATUS_BADGES[quote.status]
                   const language = quoteLanguage(quote.language)
                   const locale = quoteLocale(language)
                   return (
