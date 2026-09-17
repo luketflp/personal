@@ -11,7 +11,8 @@ const LABELS: Record<Language, string> = {
   es: 'Volver al presupuesto',
 }
 
-// Shown when the visitor arrived from a public quote (/?q=<slug>).
+// Shown when the visitor arrived from a public quote (/?q=<slug>). `from=site`
+// lets the quote tracker record the visit as a return from the portfolio.
 export function BackToQuote({ language }: { language: Language }) {
   const searchParams = useSearchParams()
   const slug = searchParams.get('q')
@@ -21,7 +22,7 @@ export function BackToQuote({ language }: { language: Language }) {
     <div className="sticky top-16 z-40 border-b bg-background/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-center px-4 py-2">
         <Link
-          href={`/q/${slug}`}
+          href={`/q/${slug}?from=site`}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
         >
           <FileText className="size-4" />

@@ -50,6 +50,13 @@
       "when": 1783626567072,
       "tag": "0006_flippant_masked_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789675853386,
+      "tag": "0007_steady_tarot",
+      "breakpoints": true
     }
   ]
 }

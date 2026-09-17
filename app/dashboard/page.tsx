@@ -7,8 +7,9 @@ import {
   Pencil,
   Plus,
   Send,
-  type LucideIcon,
 } from 'lucide-react'
+import { StatCard } from '@/components/dashboard/stat-card'
+import { ActivityCell } from '@/components/quotes/activity/activity-cell'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -22,56 +23,24 @@ import {
 } from '@/components/ui/table'
 import { DeleteQuoteButton } from '@/components/quotes/delete-quote-button'
 import { formatDate, formatMoney } from '@/lib/format'
+import { listActivitySummaries } from '@/lib/quotes/event-queries'
 import {
   QUOTE_LANGUAGE_LABELS,
   quoteLanguage,
   quoteLocale,
 } from '@/lib/quotes/language'
 import { listQuotes } from '@/lib/quotes/queries'
+import { QUOTE_STATUS_BADGES } from '@/lib/quotes/status'
 import { computeTotals } from '@/lib/quotes/totals'
-import type { QuoteStatus } from '@/lib/db/schema'
 
 export const dynamic = 'force-dynamic'
 
-const STATUS: Record<
-  QuoteStatus,
-  {
-    label: string
-    variant: 'default' | 'secondary' | 'destructive' | 'outline'
-  }
-> = {
-  draft: { label: 'Rascunho', variant: 'outline' },
-  sent: { label: 'Enviado', variant: 'secondary' },
-  accepted: { label: 'Aceito', variant: 'default' },
-  declined: { label: 'Recusado', variant: 'destructive' },
-}
-
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-}: {
-  label: string
-  value: number
-  icon: LucideIcon
-}) {
-  return (
-    <Card>
-      <CardContent className="flex items-center gap-3 p-4">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-          <Icon className="size-5" />
-        </div>
-        <div>
-          <p className="text-2xl font-semibold leading-none">{value}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{label}</p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
 export default async function DashboardPage() {
-  const quotes = await listQuotes()
+  const [quotes, activity] = await Promise.all([
+    listQuotes(),
+    listActivitySummaries(),
+  ])
+  const now = new Date()
   const counts = {
     total: quotes.length,
     draft: quotes.filter(q => q.status === 'draft').length,
@@ -110,6 +79,7 @@ export default async function DashboardPage() {
                   <TableHead>Código</TableHead>
                   <TableHead>Cliente</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Atividade</TableHead>
                   <TableHead>Idioma</TableHead>
                   <TableHead>Emissão</TableHead>
                   <TableHead className="text-right">Total</TableHead>
@@ -122,12 +92,12 @@ export default async function DashboardPage() {
                     quote.items,
                     quote.discountCents,
                   )
-                  const status = STATUS[quote.status]
+                  const status = QUOTE_STATUS_BADGES[quote.status]
                   const language = quoteLanguage(quote.language)
                   const locale = quoteLocale(language)
                   return (
                     <TableRow key={quote.id}>
-                      <TableCell className="font-medium tabular-nums">
+                      <TableCell className="whitespace-nowrap font-medium tabular-nums">
                         {quote.code}
                       </TableCell>
                       <TableCell>
@@ -141,13 +111,21 @@ export default async function DashboardPage() {
                       <TableCell>
                         <Badge variant={status.variant}>{status.label}</Badge>
                       </TableCell>
+                      <TableCell>
+                        <ActivityCell
+                          quoteId={quote.id}
+                          status={quote.status}
+                          summary={activity.get(quote.id)}
+                          now={now}
+                        />
+                      </TableCell>
                       <TableCell className="text-muted-foreground">
                         {QUOTE_LANGUAGE_LABELS[language]}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {formatDate(quote.issueDate, locale)}
+                      <TableCell className="whitespace-nowrap text-muted-foreground">
+                        {formatDate(quote.issueDate, locale, 'medium')}
                       </TableCell>
-                      <TableCell className="text-right font-medium tabular-nums">
+                      <TableCell className="whitespace-nowrap text-right font-medium tabular-nums">
                         {formatMoney(totalCents, quote.currency, locale)}
                       </TableCell>
                       <TableCell>

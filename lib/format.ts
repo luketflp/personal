@@ -20,12 +20,13 @@ export function formatMoney(
 export function formatDate(
   value: string | Date | null | undefined,
   locale: Locale = 'pt-BR',
+  dateStyle: 'long' | 'medium' = 'long',
 ) {
   if (!value) return ''
   // `date` columns come back as 'YYYY-MM-DD'; append time to avoid a UTC
   // off-by-one when the local zone is behind UTC.
   const d = typeof value === 'string' ? new Date(`${value}T00:00:00`) : value
-  return new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(d)
+  return new Intl.DateTimeFormat(locale, { dateStyle }).format(d)
 }
 
 export function formatDatePtBR(value: string | Date | null | undefined) {
