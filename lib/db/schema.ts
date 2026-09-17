@@ -3,6 +3,7 @@ import {
   date,
   index,
   integer,
+  jsonb,
   numeric,
   pgEnum,
   pgTable,
@@ -76,6 +77,51 @@ export const quoteItems = pgTable(
   }),
 )
 
+export const quoteEventType = pgEnum('quote_event_type', [
+  'view',
+  'section',
+  'scroll',
+  'leave',
+  'print',
+  'site_click',
+])
+
+// Append-only log of what visitors do on the public quote page. Context
+// columns (device, geo, referrer) are filled on `view` rows only.
+export const quoteEvents = pgTable(
+  'quote_events',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    quoteId: uuid('quote_id')
+      .notNull()
+      .references(() => quotes.id, { onDelete: 'cascade' }),
+    type: quoteEventType('type').notNull(),
+    visitorId: varchar('visitor_id', { length: 24 }).notNull(),
+    sessionId: varchar('session_id', { length: 24 }).notNull(),
+    data: jsonb('data').$type<Record<string, string | number>>(),
+    device: varchar('device', { length: 8 }),
+    browser: text('browser'),
+    os: text('os'),
+    referrerHost: text('referrer_host'),
+    country: varchar('country', { length: 2 }),
+    region: text('region'),
+    city: text('city'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  table => ({
+    quoteCreatedAtIdx: index('quote_events_quote_created_at_idx').on(
+      table.quoteId,
+      table.createdAt,
+    ),
+    quoteSessionIdx: index('quote_events_quote_session_idx').on(
+      table.quoteId,
+      table.sessionId,
+    ),
+  }),
+)
+
 export const quotesRelations = relations(quotes, ({ many }) => ({
   items: many(quoteItems),
 }))
@@ -90,6 +136,8 @@ export const quoteItemsRelations = relations(quoteItems, ({ one }) => ({
 export type Quote = typeof quotes.$inferSelect
 export type QuoteItem = typeof quoteItems.$inferSelect
 export type QuoteStatus = (typeof quoteStatus.enumValues)[number]
+export type QuoteEvent = typeof quoteEvents.$inferSelect
+export type NewQuoteEvent = typeof quoteEvents.$inferInsert
 
 export const requestStatus = pgEnum('request_status', [
   'new',
