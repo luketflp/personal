@@ -168,3 +168,34 @@ export const quoteRequests = pgTable(
 
 export type QuoteRequest = typeof quoteRequests.$inferSelect
 export type RequestStatus = (typeof requestStatus.enumValues)[number]
+
+export const financeEntryType = pgEnum('finance_entry_type', [
+  'income',
+  'expense',
+])
+
+export const financeEntries = pgTable(
+  'finance_entries',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    type: financeEntryType('type').notNull(),
+    occurredOn: date('occurred_on').notNull(),
+    tour: text('tour').notNull(),
+    description: text('description'),
+    amountCents: integer('amount_cents').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  table => ({
+    occurredOnIdx: index('finance_entries_occurred_on_idx').on(
+      table.occurredOn,
+    ),
+  }),
+)
+
+export type FinanceEntry = typeof financeEntries.$inferSelect
+export type FinanceEntryType = (typeof financeEntryType.enumValues)[number]
