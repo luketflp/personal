@@ -64,6 +64,20 @@
       "when": 1790293781151,
       "tag": "0008_soft_blacklash",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790342640947,
+      "tag": "0009_material_the_santerians",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790342658559,
+      "tag": "0010_vengeful_plazm",
+      "breakpoints": true
     }
   ]
 }

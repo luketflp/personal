@@ -174,13 +174,40 @@ export const financeEntryType = pgEnum('finance_entry_type', [
   'expense',
 ])
 
+export const projectKind = pgEnum('project_kind', [
+  'passeio',
+  'servico',
+  'outro',
+])
+
+export const projects = pgTable(
+  'projects',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    name: text('name').notNull(),
+    kind: projectKind('kind').notNull().default('passeio'),
+    color: varchar('color', { length: 7 }).notNull().default('#059669'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  table => ({
+    nameIdx: uniqueIndex('projects_name_idx').on(sql`lower(${table.name})`),
+  }),
+)
+
 export const financeEntries = pgTable(
   'finance_entries',
   {
     id: uuid('id').defaultRandom().primaryKey(),
     type: financeEntryType('type').notNull(),
     occurredOn: date('occurred_on').notNull(),
-    tour: text('tour').notNull(),
+    projectId: uuid('project_id')
+      .notNull()
+      .references(() => projects.id),
     description: text('description'),
     amountCents: integer('amount_cents').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true })
@@ -194,8 +221,22 @@ export const financeEntries = pgTable(
     occurredOnIdx: index('finance_entries_occurred_on_idx').on(
       table.occurredOn,
     ),
+    projectIdx: index('finance_entries_project_id_idx').on(table.projectId),
   }),
 )
 
+export const projectsRelations = relations(projects, ({ many }) => ({
+  entries: many(financeEntries),
+}))
+
+export const financeEntriesRelations = relations(financeEntries, ({ one }) => ({
+  project: one(projects, {
+    fields: [financeEntries.projectId],
+    references: [projects.id],
+  }),
+}))
+
+export type Project = typeof projects.$inferSelect
+export type ProjectKind = (typeof projectKind.enumValues)[number]
 export type FinanceEntry = typeof financeEntries.$inferSelect
 export type FinanceEntryType = (typeof financeEntryType.enumValues)[number]
