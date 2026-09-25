@@ -13,11 +13,10 @@ export function NavLink({
   children: ReactNode
 }) {
   const pathname = usePathname()
-  // "Orçamentos" (/dashboard) stays active across new/edit; only the requests
-  // route flips to "Solicitações".
   const active =
     href === '/dashboard'
-      ? !pathname.startsWith('/dashboard/requests')
+      ? !pathname.startsWith('/dashboard/requests') &&
+        !pathname.startsWith('/dashboard/finances')
       : pathname.startsWith(href)
 
   return (

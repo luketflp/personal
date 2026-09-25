@@ -19,6 +19,7 @@ export default async function DashboardLayout({
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <nav className="flex items-center gap-1">
             <NavLink href="/dashboard">Orçamentos</NavLink>
+            <NavLink href="/dashboard/finances">Financeiro</NavLink>
             <NavLink href="/dashboard/requests">
               <span className="inline-flex items-center gap-2">
                 Mensagens
