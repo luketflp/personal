@@ -1,9 +1,6 @@
 import { FinanceSheet } from '@/components/finances/finance-sheet'
 import { currentMonth, monthBounds } from '@/lib/finances/math'
-import {
-  listFinanceEntries,
-  listFinanceTourNames,
-} from '@/lib/finances/queries'
+import { listFinanceEntries, listProjects } from '@/lib/finances/queries'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,23 +22,19 @@ export default async function FinancesPage({
 }) {
   const params = await searchParams
   const month = validMonth(params.month)
-  const [entries, tourNames] = await Promise.all([
+  const [entries, projects] = await Promise.all([
     listFinanceEntries(month),
-    listFinanceTourNames(),
+    listProjects(),
   ])
 
   return (
     <FinanceSheet
       month={month}
-      tourNames={tourNames}
-      entries={entries.map(entry => ({
-        id: entry.id,
-        type: entry.type,
-        occurredOn: entry.occurredOn,
-        tour: entry.tour,
-        description: entry.description,
-        amountCents: entry.amountCents,
+      projects={projects.map(project => ({
+        id: project.id,
+        name: project.name,
       }))}
+      entries={entries}
     />
   )
 }

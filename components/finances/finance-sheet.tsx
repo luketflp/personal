@@ -40,6 +40,13 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
   Table,
   TableBody,
   TableCell,
@@ -55,10 +62,11 @@ import {
   deleteFinanceEntry,
   updateFinanceEntry,
 } from '@/lib/finances/actions'
+import { FinanceTabs } from '@/components/finances/finance-tabs'
 import {
   financeTotals,
   formatMonth,
-  summarizeFinancesByTour,
+  summarizeFinancesByProject,
 } from '@/lib/finances/math'
 
 import type { FinanceEntryType } from '@/lib/db/schema'
@@ -68,15 +76,21 @@ export type FinanceEntryRow = {
   id: string
   type: FinanceEntryType
   occurredOn: string
-  tour: string
+  projectId: string
+  projectName: string
   description: string | null
   amountCents: number
+}
+
+export type ProjectOption = {
+  id: string
+  name: string
 }
 
 type FinanceForm = {
   type: FinanceEntryType
   occurredOn: string
-  tour: string
+  projectId: string
   description: string
   amount: string
 }
@@ -95,13 +109,14 @@ function today() {
 
 function emptyForm(
   month: string,
+  projectId: string,
   type: FinanceEntryType = 'income',
 ): FinanceForm {
   const currentDate = today()
   return {
     type,
     occurredOn: currentDate.startsWith(month) ? currentDate : `${month}-01`,
-    tour: '',
+    projectId,
     description: '',
     amount: '',
   }
@@ -119,11 +134,11 @@ function formatAmount(cents: number) {
 function entriesToCsv(entries: FinanceEntryRow[]) {
   const escape = (value: string) => `"${value.replace(/"/g, '""')}"`
   const rows = [
-    ['Data', 'Tipo', 'Passeio / projeto', 'Descrição', 'Valor'],
+    ['Data', 'Tipo', 'Projeto', 'Descrição', 'Valor'],
     ...entries.map(entry => [
       formatDate(entry.occurredOn, 'pt-BR', 'medium'),
       entry.type === 'income' ? 'Receita' : 'Despesa',
-      entry.tour,
+      entry.projectName,
       entry.description ?? '',
       (entry.amountCents / 100).toFixed(2).replace('.', ','),
     ]),
@@ -134,28 +149,34 @@ function entriesToCsv(entries: FinanceEntryRow[]) {
 
 export function FinanceSheet({
   entries,
-  tourNames,
+  projects,
   month,
 }: {
   entries: FinanceEntryRow[]
-  tourNames: string[]
+  projects: ProjectOption[]
   month: string
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingEntry, setEditingEntry] = useState<FinanceEntryRow | null>(null)
-  const [form, setForm] = useState<FinanceForm>(() => emptyForm(month))
+  const defaultProjectId = projects[0]?.id ?? ''
+  const [form, setForm] = useState<FinanceForm>(() =>
+    emptyForm(month, defaultProjectId),
+  )
   const [error, setError] = useState('')
 
   const totals = useMemo(() => financeTotals(entries), [entries])
-  const summaries = useMemo(() => summarizeFinancesByTour(entries), [entries])
+  const summaries = useMemo(
+    () => summarizeFinancesByProject(entries),
+    [entries],
+  )
   const incomeCount = entries.filter(entry => entry.type === 'income').length
   const expenseCount = entries.length - incomeCount
 
   function openCreate(type: FinanceEntryType = 'income') {
     setEditingEntry(null)
-    setForm(emptyForm(month, type))
+    setForm(emptyForm(month, defaultProjectId, type))
     setError('')
     setDialogOpen(true)
   }
@@ -165,7 +186,7 @@ export function FinanceSheet({
     setForm({
       type: entry.type,
       occurredOn: entry.occurredOn,
-      tour: entry.tour,
+      projectId: entry.projectId,
       description: entry.description ?? '',
       amount: formatAmount(entry.amountCents),
     })
@@ -196,17 +217,16 @@ export function FinanceSheet({
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const amountCents = parseAmount(form.amount)
-    const tour = form.tour.trim()
 
-    if (!form.occurredOn || !tour || amountCents <= 0) {
-      setError('Preencha a data, o passeio/projeto e um valor maior que zero.')
+    if (!form.occurredOn || !form.projectId || amountCents <= 0) {
+      setError('Preencha a data, o projeto e um valor maior que zero.')
       return
     }
 
     const input: FinanceEntryInput = {
       type: form.type,
       occurredOn: form.occurredOn,
-      tour,
+      projectId: form.projectId,
       description: form.description.trim(),
       amountCents,
     }
@@ -269,7 +289,7 @@ export function FinanceSheet({
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Financeiro</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Receitas e despesas dos passeios organizadas por mês.
+            Receitas e despesas dos projetos organizadas por mês.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -302,6 +322,8 @@ export function FinanceSheet({
         </div>
       </div>
 
+      <FinanceTabs active="month" />
+
       <div className="grid gap-4 md:grid-cols-3">
         <SummaryCard
           label="Receitas"
@@ -329,7 +351,7 @@ export function FinanceSheet({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <div>
-            <CardTitle className="text-base">Resultado por passeio</CardTitle>
+            <CardTitle className="text-base">Resultado por projeto</CardTitle>
             <p className="mt-1 text-xs text-muted-foreground">
               {formatMonth(month)}
             </p>
@@ -344,7 +366,7 @@ export function FinanceSheet({
               <Table className="min-w-[42rem]">
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Passeio / projeto</TableHead>
+                    <TableHead>Projeto</TableHead>
                     <TableHead className="text-right">Receitas</TableHead>
                     <TableHead className="text-right">Despesas</TableHead>
                     <TableHead className="text-right">Saldo</TableHead>
@@ -352,9 +374,9 @@ export function FinanceSheet({
                 </TableHeader>
                 <TableBody>
                   {summaries.map(summary => (
-                    <TableRow key={summary.tour.toLocaleLowerCase('pt-BR')}>
+                    <TableRow key={summary.projectId}>
                       <TableCell>
-                        <div className="font-medium">{summary.tour}</div>
+                        <div className="font-medium">{summary.projectName}</div>
                         <div className="text-xs text-muted-foreground">
                           {summary.entryCount}{' '}
                           {summary.entryCount === 1
@@ -434,7 +456,7 @@ export function FinanceSheet({
                   </div>
                   <div className="min-w-44 flex-1">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                      <span className="font-medium">{entry.tour}</span>
+                      <span className="font-medium">{entry.projectName}</span>
                       <span className="text-xs text-muted-foreground">
                         {formatDate(entry.occurredOn, 'pt-BR', 'medium')}
                       </span>
@@ -460,7 +482,7 @@ export function FinanceSheet({
                       variant="ghost"
                       size="icon"
                       onClick={() => openEdit(entry)}
-                      aria-label={`Editar lançamento de ${entry.tour}`}
+                      aria-label={`Editar lançamento de ${entry.projectName}`}
                     >
                       <Pencil className="size-4" />
                     </Button>
@@ -469,7 +491,7 @@ export function FinanceSheet({
                         <Button
                           variant="ghost"
                           size="icon"
-                          aria-label={`Excluir lançamento de ${entry.tour}`}
+                          aria-label={`Excluir lançamento de ${entry.projectName}`}
                         >
                           <Trash2 className="size-4" />
                         </Button>
@@ -481,7 +503,7 @@ export function FinanceSheet({
                           </AlertDialogTitle>
                           <AlertDialogDescription>
                             O registro de {formatMoney(entry.amountCents)} para{' '}
-                            {entry.tour} será removido permanentemente.
+                            {entry.projectName} será removido permanentemente.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -569,27 +591,29 @@ export function FinanceSheet({
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="finance-tour">Passeio / projeto</Label>
-                <Input
-                  id="finance-tour"
-                  value={form.tour}
-                  onChange={event =>
-                    setForm(current => ({
-                      ...current,
-                      tour: event.target.value,
-                    }))
+                <Label htmlFor="finance-project">Projeto</Label>
+                <Select
+                  value={form.projectId || undefined}
+                  onValueChange={value =>
+                    setForm(current => ({ ...current, projectId: value }))
                   }
-                  list="finance-tour-names"
-                  placeholder="Ex.: Rio da Prata"
-                  maxLength={100}
-                  autoComplete="off"
-                  required
-                />
-                <datalist id="finance-tour-names">
-                  {tourNames.map(name => (
-                    <option key={name} value={name} />
-                  ))}
-                </datalist>
+                >
+                  <SelectTrigger id="finance-project">
+                    <SelectValue placeholder="Selecione um projeto" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects.map(project => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {projects.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Crie um projeto na aba Projetos antes de lançar.
+                  </p>
+                )}
               </div>
 
               <div className="grid gap-2">
