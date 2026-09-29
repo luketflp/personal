@@ -465,7 +465,8 @@ export default function Home() {
                       fill
                       priority
                       draggable={false}
-                      sizes="(min-width: 1024px) 34rem, (min-width: 768px) 24rem, 24rem"
+                      // Hidden below lg; 1px keeps the priority preload tiny on mobile
+                      sizes="(min-width: 1024px) 42rem, 1px"
                       className="select-none object-contain object-bottom [-webkit-user-drag:none] lg:translate-x-[6%] lg:object-right-bottom"
                     />
                   </motion.div>
