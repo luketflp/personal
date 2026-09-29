@@ -29,7 +29,10 @@ export default function AppLayout({
       enableSystem={false}
       disableTransitionOnChange
     >
-      <AnimatePresence mode="wait">
+      {/* initial={false}: no entrance animation on first load, so the
+          server-rendered page paints right away (LCP); route changes still
+          animate. */}
+      <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={transitionKey}
           className="page-transition relative min-h-screen overflow-x-clip"
