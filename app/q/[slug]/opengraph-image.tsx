@@ -36,9 +36,9 @@ export default async function OpengraphImage({
       photoSrc={photoSrc}
       name={ISSUER.name}
       subtitle={ISSUER.title[lang]}
-      label={quote ? DOCUMENT[lang] : undefined}
-      headline={
-        quote ? `${PREPARED_FOR[lang]} ${quote.customerName}` : undefined
+      eyebrow={quote ? DOCUMENT[lang] : undefined}
+      title={
+        quote ? `${PREPARED_FOR[lang]} ${quote.customerName}` : ISSUER.name
       }
     />,
     { ...OG_SIZE, fonts },

@@ -6,7 +6,7 @@ export const OG_SIZE = { width: 1200, height: 630 }
 // Literal process.cwd() joins so Vercel's output file tracing bundles the
 // assets into the serverless function (see outputFileTracingIncludes too).
 export async function loadOgAssets() {
-  const [photo, inter, interSemiBold, spaceGrotesk] = await Promise.all([
+  const [photo, inter, interSemiBold, interBold] = await Promise.all([
     readFile(join(process.cwd(), 'public', 'hero-me.png')),
     readFile(
       join(process.cwd(), 'assets', 'fonts', 'inter', 'latin-400-normal.ttf'),
@@ -15,13 +15,7 @@ export async function loadOgAssets() {
       join(process.cwd(), 'assets', 'fonts', 'inter', 'latin-600-normal.ttf'),
     ),
     readFile(
-      join(
-        process.cwd(),
-        'assets',
-        'fonts',
-        'space-grotesk',
-        'latin-700-normal.ttf',
-      ),
+      join(process.cwd(), 'assets', 'fonts', 'inter', 'latin-700-normal.ttf'),
     ),
   ])
   return {
@@ -40,8 +34,8 @@ export async function loadOgAssets() {
         style: 'normal' as const,
       },
       {
-        name: 'Space Grotesk',
-        data: spaceGrotesk,
+        name: 'Inter',
+        data: interBold,
         weight: 700 as const,
         style: 'normal' as const,
       },
@@ -49,20 +43,27 @@ export async function loadOgAssets() {
   }
 }
 
-const INK = 'rgba(12, 12, 12, 0.96)'
+// Site palette (app/globals.css, light theme)
+const FG = '#0F172A'
+const MUTED = '#64748B'
+const BORDER = '#E2E8F0'
+
+const STACK = ['React', 'Next.js', 'TypeScript', 'Rails', 'AWS']
 
 export function OgCard({
   photoSrc,
   name,
   subtitle,
-  label,
-  headline,
+  title,
+  lead,
+  eyebrow,
 }: {
   photoSrc: string
   name: string
   subtitle: string
-  label?: string
-  headline?: string
+  title: string
+  lead?: string
+  eyebrow?: string
 }) {
   return (
     <div
@@ -72,132 +73,156 @@ export function OgCard({
         display: 'flex',
         position: 'relative',
         fontFamily: 'Inter',
-        background: '#FFFFFF',
+        color: FG,
+        backgroundColor: '#FFFFFF',
+        backgroundImage:
+          'radial-gradient(circle at 0% 100%, rgba(15,23,42,0.06), transparent 45%)',
       }}
     >
-      {/* Soft dark shadow under the text block so light text reads on white */}
+      {/* Header bar, mirrors the site nav */}
       <div
         style={{
           position: 'absolute',
           left: 0,
           top: 0,
-          width: 820,
-          height: 630,
-          background: `linear-gradient(90deg, ${INK} 0%, ${INK} 55%, rgba(12,12,12,0) 100%)`,
-        }}
-      />
-
-      {/* Text block */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 76,
-          top: 0,
-          width: 600,
-          height: 630,
+          width: 1200,
+          height: 104,
+          padding: '0 72px',
           display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: `1px solid ${BORDER}`,
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            fontFamily: 'Space Grotesk',
-            fontSize: 68,
-            fontWeight: 700,
-            color: '#FFFFFF',
-            letterSpacing: -2,
-          }}
-        >
-          {name}
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginTop: 22,
-          }}
-        >
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div
             style={{
               display: 'flex',
-              width: 34,
-              height: 5,
-              borderRadius: 3,
-              background: '#8C8C8C',
-              marginRight: 16,
-            }}
-          />
-          <div
-            style={{
-              display: 'flex',
+              alignItems: 'center',
               fontSize: 28,
-              color: '#C9C9C9',
+              fontWeight: 700,
+              letterSpacing: -0.5,
+            }}
+          >
+            {`> ${name}`}
+            <div
+              style={{
+                display: 'flex',
+                width: 15,
+                height: 30,
+                marginLeft: 3,
+                background: FG,
+              }}
+            />
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              marginTop: 6,
+              fontSize: 17,
+              color: MUTED,
             }}
           >
             {subtitle}
           </div>
         </div>
-        {label && headline && (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              marginTop: 72,
-            }}
-          >
+        <div style={{ display: 'flex', fontSize: 20, color: MUTED }}>
+          lucasalexander.com.br
+        </div>
+      </div>
+
+      {/* Copy */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 72,
+          top: 104,
+          width: 640,
+          height: 526,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+        }}
+      >
+        {eyebrow && (
+          <div style={{ display: 'flex', marginBottom: 22 }}>
             <div
               style={{
                 display: 'flex',
-                fontSize: 18,
-                textTransform: 'uppercase',
-                letterSpacing: 7,
-                color: '#9A9A9A',
-              }}
-            >
-              {label}
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                marginTop: 12,
-                fontSize: 38,
+                padding: '8px 16px',
+                borderRadius: 8,
+                border: `1px solid ${BORDER}`,
+                background: '#F8FAFC',
+                fontSize: 17,
                 fontWeight: 600,
-                color: '#F2F2F2',
+                textTransform: 'uppercase',
+                letterSpacing: 3,
+                color: MUTED,
               }}
             >
-              {headline}
+              {eyebrow}
             </div>
           </div>
         )}
+        <div
+          style={{
+            display: 'flex',
+            fontSize: 68,
+            fontWeight: 700,
+            letterSpacing: -3,
+            lineHeight: 1.05,
+          }}
+        >
+          {title}
+        </div>
+        {lead && (
+          <div
+            style={{
+              display: 'flex',
+              marginTop: 14,
+              fontSize: 40,
+              fontWeight: 600,
+              letterSpacing: -1.2,
+              lineHeight: 1.15,
+            }}
+          >
+            {lead}
+          </div>
+        )}
+        <div style={{ display: 'flex', marginTop: 44 }}>
+          {STACK.map(item => (
+            <div
+              key={item}
+              style={{
+                display: 'flex',
+                marginRight: 10,
+                padding: '8px 16px',
+                borderRadius: 8,
+                border: `1px solid ${BORDER}`,
+                background: '#FFFFFF',
+                fontSize: 19,
+                color: MUTED,
+              }}
+            >
+              {item}
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Footer URL */}
+      {/* Photo cropped at the waist, like the hero */}
       <div
         style={{
           position: 'absolute',
-          left: 76,
-          bottom: 42,
+          right: 24,
+          top: 120,
+          width: 480,
+          height: 510,
           display: 'flex',
-          fontSize: 19,
-          letterSpacing: 2,
-          color: '#B0B0B0',
+          overflow: 'hidden',
         }}
       >
-        lucasalexander.com.br
-      </div>
-
-      {/* Photo */}
-      <div
-        style={{
-          position: 'absolute',
-          right: 44,
-          bottom: 0,
-          display: 'flex',
-        }}
-      >
-        <img src={photoSrc} width={430} height={573} />
+        <img src={photoSrc} width={480} height={640} />
       </div>
     </div>
   )
