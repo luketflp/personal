@@ -38,6 +38,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
   },
   // og:image comes from app/opengraph-image.tsx (file convention).
   openGraph: {
