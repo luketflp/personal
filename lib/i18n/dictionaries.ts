@@ -43,6 +43,8 @@ export type Dictionary = {
   projects: {
     title: string
     description: string
+    hoverHint: string
+    scrollingHint: string
   }
   contact: {
     title: string
@@ -119,6 +121,8 @@ export const dictionaries: Record<Language, Dictionary> = {
       title: 'Meus Projetos',
       description:
         'Aqui estão alguns dos projetos em que trabalhei recentemente.',
+      hoverHint: 'Passe o mouse para ver no celular',
+      scrollingHint: 'Rolando a versão mobile',
     },
     contact: {
       title: 'Entre em Contato',
@@ -193,6 +197,8 @@ export const dictionaries: Record<Language, Dictionary> = {
     projects: {
       title: 'My Projects',
       description: "Here are some of the projects I've worked on recently.",
+      hoverHint: 'Hover to open the mobile view',
+      scrollingHint: 'Scrolling the mobile site',
     },
     contact: {
       title: 'Get in Touch',
@@ -268,6 +274,8 @@ export const dictionaries: Record<Language, Dictionary> = {
       title: 'Mis Proyectos',
       description:
         'Aquí hay algunos de los proyectos en los que he trabajado recientemente.',
+      hoverHint: 'Pasa el cursor para verlo en el móvil',
+      scrollingHint: 'Recorriendo la versión móvil',
     },
     contact: {
       title: 'Contáctame',

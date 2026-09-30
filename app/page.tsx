@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { ContactForm } from '@/components/contact-form'
+import { ProjectShowcase } from '@/components/project-showcase'
 import { type Language, dictionaries } from '@/lib/i18n/dictionaries'
 import { PROFILE_COPY } from '@/lib/profile-copy'
 import {
@@ -693,56 +694,11 @@ export default function Home() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </motion.div>
-            <motion.div
-              className="divide-y divide-border/70"
-              initial="hidden"
-              whileInView="visible"
-              viewport={sectionViewport}
-              variants={staggerChildren}
-            >
-              {profile.projects.map((project, index) => {
-                const projectIndex = String(index + 1).padStart(2, '0')
-
-                return (
-                  <motion.div
-                    key={project.title}
-                    className="grid gap-6 py-8 transition-colors duration-300 hover:bg-muted/20 md:grid-cols-[88px_minmax(0,1fr)] md:gap-8 md:py-10"
-                    variants={fadeInUp}
-                  >
-                    <div className="text-sm font-medium uppercase tracking-[0.24em] text-muted-foreground">
-                      {projectIndex}
-                    </div>
-                    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(240px,320px)] lg:gap-8">
-                      <div className="space-y-3">
-                        <h3 className="text-xl font-semibold tracking-tight md:text-2xl">
-                          {project.title}
-                        </h3>
-                        <p className="max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
-                          {project.description}
-                        </p>
-                        {project.url && (
-                          <Link
-                            href={project.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80"
-                          >
-                            <Globe2 className="h-3.5 w-3.5" />
-                            {project.url.replace('https://', '')}
-                            <ArrowRight className="h-3.5 w-3.5" />
-                          </Link>
-                        )}
-                      </div>
-                      <div className="flex items-start lg:justify-end">
-                        <p className="max-w-xs text-sm leading-7 text-muted-foreground lg:text-right">
-                          {project.stack.join(' / ')}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                )
-              })}
-            </motion.div>
+            <ProjectShowcase
+              projects={profile.projects}
+              hoverHint={dictionary.projects.hoverHint}
+              scrollingHint={dictionary.projects.scrollingHint}
+            />
           </div>
         </section>
 
