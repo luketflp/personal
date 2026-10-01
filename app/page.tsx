@@ -30,7 +30,7 @@ import {
   SiRubyonrails,
   SiTypescript,
 } from 'react-icons/si'
-import { FaAws } from 'react-icons/fa6'
+import { FaAws, FaWhatsapp } from 'react-icons/fa6'
 import {
   motion,
   useReducedMotion,
@@ -49,6 +49,7 @@ const SOCIAL_LINKS = {
   github: 'https://github.com/luketflp',
   linkedin: 'https://www.linkedin.com/in/luca-soares/?locale=en',
 } as const
+const WHATSAPP_NUMBER = '13473801192'
 
 // Typed easing tokens — framer-motion's stricter types need a 4-tuple bezier
 // and literal easing keyword rather than the inferred number[] / string.
@@ -203,6 +204,7 @@ export default function Home() {
 
   const dictionary = dictionaries[language]
   const profile = PROFILE_COPY[language]
+  const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(profile.whatsappMessage)}`
   const strengths = [
     {
       icon: Layers3,
@@ -385,9 +387,13 @@ export default function Home() {
                     variants={fadeInUp}
                   >
                     <Button asChild size="lg">
-                      <Link href="#contact">
+                      <Link
+                        href={whatsappHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <FaWhatsapp className="h-4 w-4" />
                         {profile.primaryCta}
-                        <ArrowRight className="h-4 w-4" />
                       </Link>
                     </Button>
                     <Button asChild size="lg" variant="outline">
@@ -720,8 +726,18 @@ export default function Home() {
                     {profile.contactHeading}
                   </h2>
                 </div>
-                <div className="flex flex-col gap-3 sm:flex-row">
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <Button asChild size="lg">
+                    <Link
+                      href={whatsappHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <FaWhatsapp className="h-4 w-4" />
+                      WhatsApp
+                    </Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline">
                     <Link
                       href={SOCIAL_LINKS.linkedin}
                       target="_blank"

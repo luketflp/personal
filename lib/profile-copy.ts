@@ -6,6 +6,7 @@ export type ProfileCopy = {
   summary: string
   primaryCta: string
   secondaryCta: string
+  whatsappMessage: string
   strengthsTitle: string
   strengths: Array<{ title: string; description: string }>
   skillsHeading: string
@@ -38,9 +39,10 @@ export const PROFILE_COPY = {
       'a ponta.',
     ],
     summary:
-      'Construo sistemas web do zero, da infraestrutura à aplicação, com foco em performance e escalabilidade. Nos últimos 6 anos, a maior parte em marketplaces com pagamentos — reservas, precificação e checkout em Ruby on Rails, com React e Next.js no frontend. Entreguei um produto inteiro sozinho (backend, frontend e infra em Kubernetes, AWS e GCP).',
-    primaryCta: 'Falar comigo',
+      'Construo sistemas web do zero, da infraestrutura à aplicação, com foco em performance e escalabilidade. Nos últimos 6 anos, a maior parte em marketplaces com pagamentos — reservas, precificação e checkout em Ruby on Rails, com React e Next.js no frontend. Entreguei um produto inteiro sozinho (backend, frontend e infra em Kubernetes, AWS e GCP). Também atendo empresas e profissionais com sites, landing pages e sistemas sob medida.',
+    primaryCta: 'Falar no WhatsApp',
     secondaryCta: 'Ver projetos',
+    whatsappMessage: 'Olá, Lucas! Vim pelo seu site e gostaria de conversar.',
     strengthsTitle: 'O que eu entrego',
     strengths: [
       {
@@ -86,10 +88,9 @@ export const PROFILE_COPY = {
       },
     ],
     contactTitle: 'Contato',
-    contactHeading:
-      'Se meu perfil faz sentido para a sua necessidade, vamos conversar.',
+    contactHeading: 'Um projeto, uma vaga ou uma ideia? Vamos conversar.',
     contactSupport:
-      'LinkedIn é o melhor caminho para iniciar a conversa; no GitHub, você pode revisar projetos e exemplos reais de implementação.',
+      'O WhatsApp é o caminho mais rápido. Se preferir, envie os detalhes pelo formulário. Meu histórico está no LinkedIn e o código no GitHub.',
   },
   en: {
     headline: 'Full-stack engineer building complete web products, end to end.',
@@ -100,9 +101,10 @@ export const PROFILE_COPY = {
       'end to end.',
     ],
     summary:
-      'I build web systems from the ground up, from infrastructure to application, with a focus on performance and scalability. Over the last 6 years, mostly on payments-heavy marketplaces — reservations, pricing, and checkout in Ruby on Rails, with React and Next.js on the frontend. I shipped a whole product solo (backend, frontend, and infra on Kubernetes, AWS, and GCP).',
-    primaryCta: 'Contact me',
+      'I build web systems from the ground up, from infrastructure to application, with a focus on performance and scalability. Over the last 6 years, mostly on payments-heavy marketplaces — reservations, pricing, and checkout in Ruby on Rails, with React and Next.js on the frontend. I shipped a whole product solo (backend, frontend, and infra on Kubernetes, AWS, and GCP). I also take on client work: websites, landing pages, and custom web systems.',
+    primaryCta: 'Chat on WhatsApp',
     secondaryCta: 'View projects',
+    whatsappMessage: 'Hi Lucas! I found your website and would like to talk.',
     strengthsTitle: 'What I bring',
     strengths: [
       {
@@ -148,9 +150,9 @@ export const PROFILE_COPY = {
       },
     ],
     contactTitle: 'Contact',
-    contactHeading: 'If my profile fits your needs, let’s talk.',
+    contactHeading: 'A project, a role, or an idea? Let’s talk.',
     contactSupport:
-      'LinkedIn is the best place to start the conversation, and GitHub is where you can review projects and real implementation samples.',
+      'WhatsApp is the fastest way to reach me. Prefer writing it down? Send the details through the form. My work history is on LinkedIn and my code on GitHub.',
   },
   es: {
     headline:
@@ -162,9 +164,10 @@ export const PROFILE_COPY = {
       'a punta.',
     ],
     summary:
-      'Construyo sistemas web desde cero, de la infraestructura a la aplicación, con foco en rendimiento y escalabilidad. En los últimos 6 años, en su mayoría en marketplaces con pagos — reservas, precios y checkout en Ruby on Rails, con React y Next.js en el frontend. Entregué un producto entero yo solo (backend, frontend e infraestructura en Kubernetes, AWS y GCP).',
-    primaryCta: 'Contactarme',
+      'Construyo sistemas web desde cero, de la infraestructura a la aplicación, con foco en rendimiento y escalabilidad. En los últimos 6 años, en su mayoría en marketplaces con pagos — reservas, precios y checkout en Ruby on Rails, con React y Next.js en el frontend. Entregué un producto entero yo solo (backend, frontend e infraestructura en Kubernetes, AWS y GCP). También trabajo con empresas y profesionales en sitios web, landing pages y sistemas a medida.',
+    primaryCta: 'Escribir por WhatsApp',
     secondaryCta: 'Ver proyectos',
+    whatsappMessage: '¡Hola, Lucas! Vi tu sitio web y me gustaría conversar.',
     strengthsTitle: 'Lo que aporto',
     strengths: [
       {
@@ -211,8 +214,8 @@ export const PROFILE_COPY = {
       },
     ],
     contactTitle: 'Contacto',
-    contactHeading: 'Si mi perfil encaja con tus necesidades, conversemos.',
+    contactHeading: '¿Un proyecto, una vacante o una idea? Conversemos.',
     contactSupport:
-      'LinkedIn es la mejor vía para iniciar la conversación, y en GitHub puedes revisar proyectos y ejemplos reales de implementación.',
+      'WhatsApp es la forma más rápida de hablar conmigo. Si prefieres, envía los detalles por el formulario. Mi trayectoria está en LinkedIn y mi código en GitHub.',
   },
 } satisfies Record<Language, ProfileCopy>
