@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { after } from 'next/server'
 import { eq } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 import { db } from '@/lib/db'
@@ -26,7 +27,54 @@ export async function createQuoteRequest(
   })
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/requests')
+
+  const text = [
+    'Novo pedido de orçamento',
+    `Nome: ${d.name}`,
+    `E-mail: ${d.email}`,
+    d.phone ? `Telefone: ${d.phone}` : null,
+    d.company ? `Empresa: ${d.company}` : null,
+    d.budget ? `Orçamento: ${d.budget}` : null,
+    d.deadline ? `Prazo: ${d.deadline}` : null,
+    '',
+    d.message,
+    '',
+    'https://www.lucasalexander.com.br/dashboard/requests',
+  ]
+    .filter(line => line !== null)
+    .join('\n')
+  // Runs after the response is sent, so the visitor never waits on Telegram.
+  after(() => notifyTelegram(text))
+
   return { ok: true }
+}
+
+// The request is already saved, so a failed alert is only logged.
+async function notifyTelegram(text: string) {
+  const token = process.env.TELEGRAM_BOT_TOKEN
+  const chatId = process.env.TELEGRAM_CHAT_ID
+  if (!token || !chatId) return
+  try {
+    const res = await fetch(
+      `https://api.telegram.org/bot${token}/sendMessage`,
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        // Plain text (no parse_mode): the message is visitor input.
+        body: JSON.stringify({
+          chat_id: chatId,
+          text,
+          disable_web_page_preview: true,
+        }),
+        signal: AbortSignal.timeout(5000),
+      },
+    )
+    if (!res.ok) {
+      console.error('Telegram lead alert failed', res.status, await res.text())
+    }
+  } catch (error) {
+    console.error('Telegram lead alert failed', error)
+  }
 }
 
 // Dashboard: accept a request -> create a prefilled draft quote.
