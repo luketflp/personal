@@ -19,6 +19,7 @@ export type ProfileCopy = {
   sceneStatus: string
   projects: Array<{
     title: string
+    kind: string
     description: string
     stack: string[]
     url?: string
@@ -73,7 +74,23 @@ export const PROFILE_COPY = {
     sceneStatus: 'Em destaque',
     projects: [
       {
+        title: 'NutriPiva',
+        kind: 'Site + painel',
+        description:
+          'Site e painel para um nutricionista esportivo: página de serviços e valores com agendamento pelo WhatsApp, e um painel com login para gerenciar pacientes e gerar planos alimentares.',
+        stack: [
+          'Next.js',
+          'React',
+          'TypeScript',
+          'PostgreSQL',
+          'Tailwind',
+          'Framer Motion',
+        ],
+        url: 'https://www.nutripiva.com.br',
+      },
+      {
         title: 'Binamik Photos',
+        kind: 'Marketplace SaaS',
         description:
           'Marketplace SaaS onde participantes de eventos compram fotos dos organizadores — construído sozinho: backend, frontend, infraestrutura e checkout. Pipeline AWS Lambda processa ~1.000 fotos por dia e o Postgres principal passa de 24 milhões de linhas.',
         stack: ['FastAPI', 'Next.js', 'PostgreSQL', 'Kubernetes', 'AWS Lambda'],
@@ -81,6 +98,7 @@ export const PROFILE_COPY = {
       },
       {
         title: 'Roxo Events',
+        kind: 'Site institucional',
         description:
           'Site institucional para empresa de eventos com galeria, formulário de contato, seção de serviços e suporte multilíngue. Interface moderna com animações e design responsivo.',
         stack: ['Next.js', 'React', 'TypeScript', 'Tailwind', 'Framer Motion'],
@@ -135,7 +153,23 @@ export const PROFILE_COPY = {
     sceneStatus: 'Featured',
     projects: [
       {
+        title: 'NutriPiva',
+        kind: 'Website + dashboard',
+        description:
+          'Website and dashboard for a sports nutritionist: a services and pricing page with WhatsApp booking, plus a login-protected dashboard to manage clients and generate diet plans.',
+        stack: [
+          'Next.js',
+          'React',
+          'TypeScript',
+          'PostgreSQL',
+          'Tailwind',
+          'Framer Motion',
+        ],
+        url: 'https://www.nutripiva.com.br',
+      },
+      {
         title: 'Binamik Photos',
+        kind: 'SaaS marketplace',
         description:
           'SaaS marketplace where event participants buy photos from organizers — built solo: backend, frontend, infrastructure, and checkout. An AWS Lambda pipeline processes ~1,000 photos per day and the main Postgres table holds 24M+ rows.',
         stack: ['FastAPI', 'Next.js', 'PostgreSQL', 'Kubernetes', 'AWS Lambda'],
@@ -143,6 +177,7 @@ export const PROFILE_COPY = {
       },
       {
         title: 'Roxo Events',
+        kind: 'Institutional website',
         description:
           'Institutional website for an events company with gallery, contact form, services section, and multilingual support. Modern interface with animations and responsive design.',
         stack: ['Next.js', 'React', 'TypeScript', 'Tailwind', 'Framer Motion'],
@@ -199,7 +234,23 @@ export const PROFILE_COPY = {
     sceneStatus: 'Destacado',
     projects: [
       {
+        title: 'NutriPiva',
+        kind: 'Sitio + panel',
+        description:
+          'Sitio web y panel para un nutricionista deportivo: página de servicios y precios con agendamiento por WhatsApp, y un panel con login para gestionar pacientes y generar planes de alimentación.',
+        stack: [
+          'Next.js',
+          'React',
+          'TypeScript',
+          'PostgreSQL',
+          'Tailwind',
+          'Framer Motion',
+        ],
+        url: 'https://www.nutripiva.com.br',
+      },
+      {
         title: 'Binamik Photos',
+        kind: 'Marketplace SaaS',
         description:
           'Marketplace SaaS donde participantes de eventos compran fotos de los organizadores — construido solo: backend, frontend, infraestructura y checkout. Un pipeline de AWS Lambda procesa ~1.000 fotos por día y la tabla principal de Postgres supera los 24 millones de filas.',
         stack: ['FastAPI', 'Next.js', 'PostgreSQL', 'Kubernetes', 'AWS Lambda'],
@@ -207,6 +258,7 @@ export const PROFILE_COPY = {
       },
       {
         title: 'Roxo Events',
+        kind: 'Sitio institucional',
         description:
           'Sitio institucional para empresa de eventos con galería, formulario de contacto, sección de servicios y soporte multilingüe. Interfaz moderna con animaciones y diseño responsivo.',
         stack: ['Next.js', 'React', 'TypeScript', 'Tailwind', 'Framer Motion'],
