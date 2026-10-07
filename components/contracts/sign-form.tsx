@@ -34,7 +34,7 @@ export type SignFormLabels = {
   sign: string
   signing: string
   reload: string
-  errors: Record<SignErrorKey | 'changed' | 'not-signable', string>
+  errors: Record<SignErrorKey | 'changed' | 'not-signable' | 'failed', string>
 }
 
 export function SignForm({
@@ -52,6 +52,7 @@ export function SignForm({
   const [fields, setFields] = useState({ name: '', document: '', address: '' })
   const [docType, setDocType] = useState<SignerDocumentType>('cpf')
   const [agreed, setAgreed] = useState(false)
+  const [failed, setFailed] = useState(false)
 
   const fieldErrors: Partial<Record<SignField, SignErrorKey>> =
     state.status === 'error' ? (state.fieldErrors ?? {}) : {}
@@ -73,9 +74,15 @@ export function SignForm({
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     startTransition(async () => {
-      const next = await action(formData)
-      setState(next)
-      if (next.status === 'signed') router.refresh()
+      try {
+        const next = await action(formData)
+        setFailed(false)
+        setState(next)
+        if (next.status === 'signed') router.refresh()
+      } catch {
+        // Network drop or server error: keep what the client typed so they can retry.
+        setFailed(true)
+      }
     })
   }
 
@@ -88,7 +95,16 @@ export function SignForm({
     <form onSubmit={onSubmit} noValidate className="space-y-4">
       <p className="text-sm text-muted-foreground">{labels.intro}</p>
 
-      {banner && (
+      {failed && (
+        <div
+          role="alert"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+          {labels.errors.failed}
+        </div>
+      )}
+
+      {banner && !failed && (
         <div
           role="alert"
           className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"

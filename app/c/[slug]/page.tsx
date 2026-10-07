@@ -104,6 +104,8 @@ const LABELS: Record<QuoteLanguage, Labels> = {
         invalidDocument: 'Número de documento inválido.',
         mustAgree: 'Marque a caixa para concordar com os termos.',
         invalid: 'Verifique os campos destacados.',
+        failed:
+          'Não foi possível assinar agora. Verifique sua conexão e tente novamente.',
         changed:
           'Este contrato foi atualizado. Recarregue a página para ler a versão mais recente.',
         'not-signable':
@@ -164,6 +166,8 @@ const LABELS: Record<QuoteLanguage, Labels> = {
         invalidDocument: 'Invalid document number.',
         mustAgree: 'Tick the box to agree to the terms.',
         invalid: 'Check the highlighted fields.',
+        failed:
+          "We couldn't sign right now. Check your connection and try again.",
         changed:
           'This contract was updated. Reload the page to read the latest version.',
         'not-signable':
@@ -224,6 +228,8 @@ const LABELS: Record<QuoteLanguage, Labels> = {
         invalidDocument: 'Número de documento inválido.',
         mustAgree: 'Marca la casilla para aceptar los términos.',
         invalid: 'Revisa los campos marcados.',
+        failed:
+          'No pudimos firmar en este momento. Revisa tu conexión e inténtalo de nuevo.',
         changed:
           'Este contrato fue actualizado. Recarga la página para leer la versión más reciente.',
         'not-signable':
