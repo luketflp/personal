@@ -8,6 +8,7 @@ import { headers } from 'next/headers'
 import { after } from 'next/server'
 import { eq } from 'drizzle-orm'
 import { signedHash, versionHash } from '@/lib/contracts/hash'
+import { canTransition } from '@/lib/contracts/status'
 import {
   firstErrors,
   signPayloadSchema,
@@ -59,7 +60,7 @@ export async function signContract(
       .from(contracts)
       .where(eq(contracts.slug, slug))
       .for('update')
-    if (!contract || contract.status !== 'sent' || !contract.sentAt) {
+    if (!contract || !canTransition(contract.status, 'signed') || !contract.sentAt) {
       return 'not-signable' as const
     }
     if (versionHash(contract) !== input.versionHash) return 'changed' as const

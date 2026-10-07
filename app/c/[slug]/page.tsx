@@ -239,6 +239,9 @@ const LABELS: Record<QuoteLanguage, Labels> = {
   },
 }
 
+const neverSent = (c: { status: string; sentAt: Date | null }) =>
+  c.status === 'draft' || (c.status === 'void' && !c.sentAt)
+
 export async function generateMetadata({
   params,
 }: {
@@ -247,7 +250,7 @@ export async function generateMetadata({
   const { slug } = await params
   const contract = await getContractBySlug(slug)
   const robots = { index: false, follow: false }
-  if (!contract || contract.status === 'draft') {
+  if (!contract || neverSent(contract)) {
     return { title: LABELS.pt.notFound, robots }
   }
   const t = LABELS[quoteLanguage(contract.language)]
@@ -269,7 +272,7 @@ export default async function PublicContractPage({
   const isOwner = await verifySessionToken(
     (await cookies()).get(SESSION_COOKIE)?.value,
   )
-  if (contract.status === 'draft' && !isOwner) notFound()
+  if (neverSent(contract) && !isOwner) notFound()
 
   const lang = quoteLanguage(contract.language)
   const t = LABELS[lang]

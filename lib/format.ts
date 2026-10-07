@@ -40,9 +40,18 @@ export function formatTimestamp(
   withTime = true,
 ) {
   if (!value) return ''
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: 'medium',
-    ...(withTime && { timeStyle: 'short' }),
-    timeZone: 'America/Sao_Paulo',
-  }).format(new Date(value))
+  const timeZone = 'America/Sao_Paulo'
+  // timeZoneName cannot be combined with dateStyle/timeStyle.
+  const options: Intl.DateTimeFormatOptions = withTime
+    ? {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short',
+        timeZone,
+      }
+    : { dateStyle: 'medium', timeZone }
+  return new Intl.DateTimeFormat(locale, options).format(new Date(value))
 }

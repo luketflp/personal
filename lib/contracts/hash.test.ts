@@ -35,6 +35,13 @@ describe('versionHash', () => {
   it.each(Object.entries(patches))('changes when %s changes', (_, patch) => {
     expect(versionHash({ ...base, ...patch })).not.toBe(versionHash(base))
   })
+
+  it('matches the frozen digest for the base fixture', () => {
+    // Stored fingerprints depend on this exact field order; never change it.
+    expect(versionHash(base)).toBe(
+      '49be0214a057c6cfe09ce321778fd473445125eb82a606a45a51a4d6170aa05d',
+    )
+  })
 })
 
 describe('signedHash', () => {
@@ -57,6 +64,13 @@ describe('signedHash', () => {
       signedHash({ ...base, issuerName: 'Lucas A', issuerDocument: 'X' }),
     ).not.toBe(
       signedHash({ ...base, issuerName: 'Lucas', issuerDocument: ' AX' }),
+    )
+  })
+
+  it('matches the frozen digest for the base fixture', () => {
+    // Stored fingerprints depend on this exact field order; never change it.
+    expect(signedHash(base)).toBe(
+      'c26e3775c99a39c135259bb2beee987a07b95beafc03f89018d39f792442bd4a',
     )
   })
 })

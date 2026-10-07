@@ -24,6 +24,9 @@ describe('formatTimestamp', () => {
       '15:42',
     )
     expect(formatTimestamp('2026-10-07T18:42:00Z', 'en-US')).toContain('3:42')
+    expect(formatTimestamp(new Date('2026-10-07T18:42:00Z'), 'en-US')).toMatch(
+      /GMT-3|BRT/,
+    )
   })
 
   it('keeps the Brazilian date across midnight UTC', () => {

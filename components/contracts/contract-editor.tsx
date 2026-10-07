@@ -126,6 +126,7 @@ export function ContractEditor({
           <Textarea
             id="contract-body"
             value={body}
+            readOnly={isPending}
             onChange={e => setBody(e.target.value)}
             spellCheck={false}
             className="min-h-[640px] flex-1 resize-y rounded-none border-0 font-contract-mono text-[13px] leading-relaxed focus-visible:ring-0 focus-visible:ring-offset-0"

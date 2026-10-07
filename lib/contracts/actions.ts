@@ -84,7 +84,8 @@ export async function createContractFromQuote(
   let data: ReturnType<typeof snapshot>
   try {
     data = snapshot(quote, quoteLanguage(quote.language))
-  } catch {
+  } catch (error) {
+    console.error('contract snapshot failed', error)
     return { ok: false, error: MISSING_ISSUER }
   }
 
@@ -155,7 +156,8 @@ export async function regenerateContract(
   let data: ReturnType<typeof snapshot>
   try {
     data = snapshot(quote, language)
-  } catch {
+  } catch (error) {
+    console.error('contract snapshot failed', error)
     return { ok: false, error: MISSING_ISSUER }
   }
 
