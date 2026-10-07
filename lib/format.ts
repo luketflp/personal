@@ -32,3 +32,17 @@ export function formatDate(
 export function formatDatePtBR(value: string | Date | null | undefined) {
   return formatDate(value, 'pt-BR')
 }
+
+// Timestamps (timestamptz) render in Brazil time; the server runs in UTC.
+export function formatTimestamp(
+  value: Date | string | null | undefined,
+  locale: Locale = 'pt-BR',
+  withTime = true,
+) {
+  if (!value) return ''
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium',
+    ...(withTime && { timeStyle: 'short' }),
+    timeZone: 'America/Sao_Paulo',
+  }).format(new Date(value))
+}

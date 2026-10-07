@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  clientIp,
   geoFromHeaders,
   isBot,
   parseUserAgent,
@@ -125,5 +126,24 @@ describe('geoFromHeaders', () => {
   it('keeps the raw city when its encoding is broken', () => {
     const headers = new Headers({ 'x-vercel-ip-city': '%E0%A4%A' })
     expect(geoFromHeaders(headers).city).toBe('%E0%A4%A')
+  })
+})
+
+describe('clientIp', () => {
+  it('takes the first hop of x-forwarded-for', () => {
+    expect(
+      clientIp(new Headers({ 'x-forwarded-for': ' 189.6.24.117 , 10.0.0.1' })),
+    ).toBe('189.6.24.117')
+  })
+
+  it('falls back to x-real-ip', () => {
+    expect(clientIp(new Headers({ 'x-real-ip': '73.162.40.8' }))).toBe(
+      '73.162.40.8',
+    )
+  })
+
+  it('returns null without either header', () => {
+    expect(clientIp(new Headers())).toBeNull()
+    expect(clientIp(new Headers({ 'x-forwarded-for': ' ' }))).toBeNull()
   })
 })

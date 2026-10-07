@@ -89,3 +89,9 @@ export function geoFromHeaders(headers: Headers) {
     city: decodeHeader(headers.get('x-vercel-ip-city')),
   }
 }
+
+// On Vercel the first x-forwarded-for hop is the client.
+export function clientIp(headers: Headers): string | null {
+  const forwarded = headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+  return forwarded || headers.get('x-real-ip')?.trim() || null
+}

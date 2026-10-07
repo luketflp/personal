@@ -8,6 +8,7 @@ import { db } from '@/lib/db'
 import { quoteItems, quoteRequests, quotes } from '@/lib/db/schema'
 import { nextQuoteCode } from '@/lib/quotes/code'
 import { quoteRequestSchema } from '@/lib/quotes/request-validation'
+import { notifyTelegram } from '@/lib/telegram'
 
 // Public: submitted from the homepage form.
 export async function createQuoteRequest(
@@ -47,34 +48,6 @@ export async function createQuoteRequest(
   after(() => notifyTelegram(text))
 
   return { ok: true }
-}
-
-// The request is already saved, so a failed alert is only logged.
-async function notifyTelegram(text: string) {
-  const token = process.env.TELEGRAM_BOT_TOKEN
-  const chatId = process.env.TELEGRAM_CHAT_ID
-  if (!token || !chatId) return
-  try {
-    const res = await fetch(
-      `https://api.telegram.org/bot${token}/sendMessage`,
-      {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        // Plain text (no parse_mode): the message is visitor input.
-        body: JSON.stringify({
-          chat_id: chatId,
-          text,
-          disable_web_page_preview: true,
-        }),
-        signal: AbortSignal.timeout(5000),
-      },
-    )
-    if (!res.ok) {
-      console.error('Telegram lead alert failed', res.status, await res.text())
-    }
-  } catch (error) {
-    console.error('Telegram lead alert failed', error)
-  }
 }
 
 // Dashboard: accept a request -> create a prefilled draft quote.
