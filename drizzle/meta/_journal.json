@@ -78,6 +78,13 @@
       "when": 1790342658559,
       "tag": "0010_vengeful_plazm",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791414048796,
+      "tag": "0011_whole_black_cat",
+      "breakpoints": true
     }
   ]
 }

@@ -240,3 +240,72 @@ export type Project = typeof projects.$inferSelect
 export type ProjectKind = (typeof projectKind.enumValues)[number]
 export type FinanceEntry = typeof financeEntries.$inferSelect
 export type FinanceEntryType = (typeof financeEntryType.enumValues)[number]
+
+export const contractStatus = pgEnum('contract_status', [
+  'draft',
+  'sent',
+  'signed',
+  'void',
+])
+
+// A self-contained snapshot: body, totals and both parties' legal data are
+// copied in, so later quote edits or env changes never alter a contract.
+export const contracts = pgTable(
+  'contracts',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    // Set null, not cascade: a signed contract must survive its quote.
+    quoteId: uuid('quote_id').references(() => quotes.id, {
+      onDelete: 'set null',
+    }),
+    slug: varchar('slug', { length: 24 }).notNull(),
+    code: varchar('code', { length: 16 }).notNull(),
+    status: contractStatus('status').notNull().default('draft'),
+    language: varchar('language', { length: 2 }).notNull().default('pt'),
+    quoteCode: varchar('quote_code', { length: 16 }),
+    customerName: text('customer_name').notNull(),
+    customerCompany: text('customer_company'),
+    customerEmail: text('customer_email'),
+    currency: varchar('currency', { length: 3 }).notNull(),
+    totalCents: integer('total_cents').notNull(),
+    body: text('body').notNull(),
+    issuerName: text('issuer_name').notNull(),
+    issuerDocument: text('issuer_document').notNull(),
+    issuerAddress: text('issuer_address').notNull(),
+    sentAt: timestamp('sent_at', { withTimezone: true }),
+    signerName: text('signer_name'),
+    // cpf | cnpj | other
+    signerDocumentType: varchar('signer_document_type', { length: 8 }),
+    signerDocument: text('signer_document'),
+    signerAddress: text('signer_address'),
+    signerIp: text('signer_ip'),
+    signerUserAgent: text('signer_user_agent'),
+    signedAt: timestamp('signed_at', { withTimezone: true }),
+    signedHash: varchar('signed_hash', { length: 64 }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  table => ({
+    slugIdx: uniqueIndex('contracts_slug_idx').on(table.slug),
+    codeIdx: uniqueIndex('contracts_code_idx').on(table.code),
+    // At most one live contract per quote; voided ones don't count.
+    quoteActiveIdx: uniqueIndex('contracts_quote_active_idx')
+      .on(table.quoteId)
+      .where(sql`${table.status} <> 'void'`),
+    createdAtIdx: index('contracts_created_at_idx').on(table.createdAt),
+  }),
+)
+
+export const contractsRelations = relations(contracts, ({ one }) => ({
+  quote: one(quotes, {
+    fields: [contracts.quoteId],
+    references: [quotes.id],
+  }),
+}))
+
+export type Contract = typeof contracts.$inferSelect
+export type ContractStatus = (typeof contractStatus.enumValues)[number]
