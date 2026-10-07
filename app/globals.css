@@ -187,3 +187,36 @@
   border-top: 1px solid hsl(var(--border));
   margin: 1em 0;
 }
+
+/* Contract text: dashboard preview and /c/[slug]. */
+.contract-body {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #1e293b;
+}
+.contract-body h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 1.6em 0 0.35em;
+}
+.contract-body p {
+  margin: 0 0 0.75em;
+}
+.contract-body table {
+  width: 100%;
+  margin: 0.75em 0 1em;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+.contract-body th,
+.contract-body td {
+  border: 0;
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 0.45em 0.25em;
+}
+.contract-body th {
+  text-align: left;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+}
