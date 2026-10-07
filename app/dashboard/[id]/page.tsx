@@ -6,11 +6,13 @@ import {
   BookOpen,
   Clock,
   ExternalLink,
+  FileSignature,
   Eye,
   EyeOff,
   Pencil,
   Users,
 } from 'lucide-react'
+import { GenerateContractButton } from '@/components/contracts/generate-contract-button'
 import { StatCard } from '@/components/dashboard/stat-card'
 import { ActionsCard } from '@/components/quotes/activity/actions-card'
 import { CopyLinkButton } from '@/components/quotes/activity/copy-link-button'
@@ -23,6 +25,7 @@ import { formatDate, formatMoney } from '@/lib/format'
 import { buildQuoteActivity } from '@/lib/quotes/activity'
 import { formatDuration, formatLastSeen } from '@/lib/quotes/activity-format'
 import type { TrackedSection } from '@/lib/quotes/event-constants'
+import { getLiveContractForQuote } from '@/lib/contracts/queries'
 import { listQuoteEvents } from '@/lib/quotes/event-queries'
 import { quoteLocale } from '@/lib/quotes/language'
 import { getQuoteById } from '@/lib/quotes/queries'
@@ -42,9 +45,10 @@ export default async function QuoteActivityPage({
   // Anything under /dashboard/* lands here; keep non-ids away from the DB.
   if (!UUID.test(id)) notFound()
 
-  const [quote, events] = await Promise.all([
+  const [quote, events, liveContract] = await Promise.all([
     getQuoteById(id),
     listQuoteEvents(id),
+    getLiveContractForQuote(id),
   ])
   if (!quote) notFound()
 
@@ -101,7 +105,7 @@ export default async function QuoteActivityPage({
                 )}
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline" size="sm" className="gap-2">
                 <Link href={`/q/${quote.slug}`} target="_blank">
                   <ExternalLink className="size-4" /> Ver público
@@ -112,6 +116,17 @@ export default async function QuoteActivityPage({
                   <Pencil className="size-4" /> Editar
                 </Link>
               </Button>
+              {liveContract ? (
+                <Button asChild variant="outline" size="sm" className="gap-2">
+                  <Link href={`/dashboard/contracts/${liveContract.id}`}>
+                    <FileSignature className="size-4" /> Ver contrato
+                  </Link>
+                </Button>
+              ) : (
+                quote.status === 'accepted' && (
+                  <GenerateContractButton quoteId={quote.id} variant="outline" />
+                )
+              )}
             </div>
           </div>
         </div>

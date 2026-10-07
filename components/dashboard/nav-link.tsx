@@ -15,8 +15,9 @@ export function NavLink({
   const pathname = usePathname()
   const active =
     href === '/dashboard'
-      ? !pathname.startsWith('/dashboard/requests') &&
-        !pathname.startsWith('/dashboard/finances')
+      ? !['/dashboard/requests', '/dashboard/finances', '/dashboard/contracts'].some(
+          prefix => pathname.startsWith(prefix),
+        )
       : pathname.startsWith(href)
 
   return (

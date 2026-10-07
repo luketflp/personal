@@ -20,6 +20,7 @@ export default async function DashboardLayout({
           <nav className="flex items-center gap-1">
             <NavLink href="/dashboard">Orçamentos</NavLink>
             <NavLink href="/dashboard/finances">Financeiro</NavLink>
+            <NavLink href="/dashboard/contracts">Contratos</NavLink>
             <NavLink href="/dashboard/requests">
               <span className="inline-flex items-center gap-2">
                 Mensagens
